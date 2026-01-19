@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -59,7 +59,7 @@ object RedisChannel {
   ): Resource[F, Socket[F]] =
     Network[F].client(address, PlatformDependent.socketOptions(receiveBufferSizeBytes))
 
-  private[this] final object impl {
+  private[this] object impl {
     def send[F[_]: MonadError[*[_], Throwable]](socketWrite: Chunk[Byte] => F[Unit])(
         implicit logSelector: LogSelector[F]
     ): Pipe[F, RESP, Unit] =

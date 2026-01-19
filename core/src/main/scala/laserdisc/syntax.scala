@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -49,5 +49,5 @@ object all
     with protocol.SortedSetP
     with protocol.StringP
     with protocol.TransactionP {
-  final object blocking extends protocol.BListP
+  object blocking extends protocol.BListP
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,7 +32,7 @@ import scodec.bits.BitVector
 import scodec.{Attempt, Codec, Err => SErr}
 
 object RESPCodecsSpec {
-  private[this] final object functions {
+  private[this] object functions {
     private[this] final val attemptDecode = (bits: BitVector) => Codec[RESP].decodeValue(bits)
     private[this] final val requireEncode = (resp: RESP) => Codec[RESP].encode(resp).require
     private[this] final val stringToBytes = (s: String) => s.getBytes(UTF_8)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -43,7 +43,7 @@ package object fs2 {
   final type RedisClient[F[_]]               = Client[F, Env[F]]
   final type RedisHandler[F[_], In <: HList] = Handler[F, Env[F], In]
 
-  final object RedisHandler {
+  object RedisHandler {
     type Aux[F[_], In <: HList, LOut0 <: HList] = RedisHandler[F, In] { type LOut = LOut0 }
   }
 

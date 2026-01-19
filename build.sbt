@@ -79,7 +79,7 @@ lazy val commonSettings = Seq(
   coverageFailOnMinimum    := false,
   coverageHighlighting     := true,
   coverageMinimumStmtTotal := 60,
-  headerEndYear            := Some(2025),
+  headerEndYear            := Some(2026),
   scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
 )
 

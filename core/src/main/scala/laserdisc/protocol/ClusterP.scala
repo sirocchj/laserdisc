@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -36,7 +36,7 @@ object ClusterP {
         .flatMap(R.read)
         .widenLeft[Throwable]
   }
-  final object Info {
+  object Info {
     implicit val infoRead: Bulk ==> Info =
       KVPS.contramap[Bulk](_.value.split(CRLF).toList).map(kv => new Info(kv.toMap))
   }
@@ -53,7 +53,7 @@ object ClusterP {
       slots: Seq[SlotType]
   )
   final case class Nodes(nodes: Seq[Node]) extends AnyVal
-  final object Nodes {
+  object Nodes {
     private final val A: String ==> Address = {
       val HPCP = raw"([A-Za-z0-9\-\.]*):(\d+)@(\d+)".r
       val HP   = raw"([A-Za-z0-9\-\.]*):(\d+)".r
@@ -138,9 +138,9 @@ object ClusterP {
   }
 
   sealed trait FailoverMode
-  final object FailoverMode {
-    final case object force    extends FailoverMode
-    final case object takeover extends FailoverMode
+  object FailoverMode {
+    case object force    extends FailoverMode
+    case object takeover extends FailoverMode
 
     implicit final val failoverModeShow: Show[FailoverMode] = Show.instance {
       case `force`    => "FORCE"
@@ -149,14 +149,14 @@ object ClusterP {
   }
 
   sealed trait Flag
-  final object Flag {
-    final case object myself       extends Flag
-    final case object master       extends Flag
-    final case object replica      extends Flag
-    final case object possiblefail extends Flag
-    final case object fail         extends Flag
-    final case object handshake    extends Flag
-    final case object noaddress    extends Flag
+  object Flag {
+    case object myself       extends Flag
+    case object master       extends Flag
+    case object replica      extends Flag
+    case object possiblefail extends Flag
+    case object fail         extends Flag
+    case object handshake    extends Flag
+    case object noaddress    extends Flag
 
     implicit final val flagShow: Show[Flag] = Show.instance {
       case `myself`       => "myself"
@@ -173,9 +173,9 @@ object ClusterP {
   final case class HostPortNodeId(host: Host, port: Port, nodeId: NodeId)
 
   sealed trait LinkState
-  final object LinkState {
-    final case object connected    extends LinkState
-    final case object disconnected extends LinkState
+  object LinkState {
+    case object connected    extends LinkState
+    case object disconnected extends LinkState
 
     implicit final val linkStateShow: Show[LinkState] = Show.unsafeFromToString
   }
@@ -183,9 +183,9 @@ object ClusterP {
   final case class Address(host: Host, port: Port, clusterPort: Port)
 
   sealed trait ResetMode
-  final object ResetMode {
-    final case object hard extends ResetMode
-    final case object soft extends ResetMode
+  object ResetMode {
+    case object hard extends ResetMode
+    case object soft extends ResetMode
 
     implicit final val resetModeShow: Show[ResetMode] = Show.instance {
       case `hard` => "HARD"
@@ -194,10 +194,10 @@ object ClusterP {
   }
 
   sealed trait SetSlotMode
-  final object SetSlotMode {
-    final case object importing extends SetSlotMode
-    final case object migrating extends SetSlotMode
-    final case object node      extends SetSlotMode
+  object SetSlotMode {
+    case object importing extends SetSlotMode
+    case object migrating extends SetSlotMode
+    case object node      extends SetSlotMode
 
     implicit final val setSlotModeShow: Show[SetSlotMode] = Show.instance {
       case `importing` => "IMPORTING"
@@ -207,13 +207,13 @@ object ClusterP {
   }
 
   sealed trait SlotInfo
-  final object SlotInfo {
+  object SlotInfo {
     final case class NewSlotInfo(master: HostPortNodeId, replicas: Seq[HostPortNodeId]) extends SlotInfo
     final case class OldSlotInfo(master: HostPort, replicas: Seq[HostPort])             extends SlotInfo
   }
 
   sealed trait SlotType
-  final object SlotType {
+  object SlotType {
     final case class Single(slot: Slot)                            extends SlotType
     final case class Range(from: Slot, to: Slot)                   extends SlotType
     final case class ImportingSlot(slot: Slot, fromNodeId: NodeId) extends SlotType
@@ -228,7 +228,7 @@ object ClusterP {
         }
         .map { case (_, value) => value }
   }
-  final object Slots {
+  object Slots {
     import SlotInfo._
     import SlotType.Range
     private val H: Bulk ==> Host = Read.instance {
@@ -294,7 +294,7 @@ object ClusterP {
 trait ClusterP {
   import shapeless._
 
-  final object clustertypes {
+  object clustertypes {
     final type ClusterAddress           = ClusterP.Address
     final type ClusterFailoverMode      = ClusterP.FailoverMode
     final type ClusterFlag              = ClusterP.Flag

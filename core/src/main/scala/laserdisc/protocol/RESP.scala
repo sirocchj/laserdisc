@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -195,8 +195,7 @@ sealed trait RESPCodecs extends BitVectorSyntax {
   private[this] final val crlfTerminatedLongCodec: Codec[Long]     = crlfTerminatedStringCodec.narrow(
     s =>
       try Attempt.successful(j.Long.parseLong(s))
-      catch { case _: NumberFormatException => Attempt.failure(SErr(s"Expected long but found $s")) },
-    _.toString
+      catch { case _: NumberFormatException => Attempt.failure(SErr(s"Expected long but found $s")) }, _.toString
   )
   private[this] final val strCodec: Codec[Str]      = crlfTerminatedStringCodec.xmap[Str](Str.apply, _.value)
   private[this] final val errCodec: Codec[Err]      = crlfTerminatedStringCodec.xmap[Err](Err.apply, _.message)
@@ -382,8 +381,8 @@ object BitVectorDecoding {
   sealed trait State                                                                extends Product with Serializable
   final case class MissingBits(stillToReceive: Long)                                extends State
   final case class CompleteWithRemainder(complete: BitVector, remainder: BitVector) extends State
-  final case object Incomplete                                                      extends State
-  final case object Complete                                                        extends State
+  case object Incomplete                                                            extends State
+  case object Complete                                                              extends State
 }
 
 object RESP extends RESPCodecs with RESPCoproduct with RESPFunctions

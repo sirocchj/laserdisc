@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -29,21 +29,21 @@ object ServerP {
   import scala.language.dynamics
 
   sealed trait InfoSection
-  final object InfoSection {
+  object InfoSection {
     final type default = default.type
 
-    final object server       extends InfoSection
-    final object clients      extends InfoSection
-    final object memory       extends InfoSection
-    final object persistence  extends InfoSection
-    final object stats        extends InfoSection
-    final object replication  extends InfoSection
-    final object cpu          extends InfoSection
-    final object commandstats extends InfoSection
-    final object cluster      extends InfoSection
-    final object keyspace     extends InfoSection
-    final object all          extends InfoSection
-    final object default      extends InfoSection
+    object server       extends InfoSection
+    object clients      extends InfoSection
+    object memory       extends InfoSection
+    object persistence  extends InfoSection
+    object stats        extends InfoSection
+    object replication  extends InfoSection
+    object cpu          extends InfoSection
+    object commandstats extends InfoSection
+    object cluster      extends InfoSection
+    object keyspace     extends InfoSection
+    object all          extends InfoSection
+    object default      extends InfoSection
 
     implicit val defaultShow: Show[default]         = Show.const("default")
     implicit val infoSectionShow: Show[InfoSection] = Show.instance {
@@ -63,9 +63,9 @@ object ServerP {
   }
 
   sealed trait ShutdownFlag
-  final object ShutdownFlag {
-    final object nosave extends ShutdownFlag
-    final object save   extends ShutdownFlag
+  object ShutdownFlag {
+    object nosave extends ShutdownFlag
+    object save   extends ShutdownFlag
 
     implicit val shutdownFlagShow: Show[ShutdownFlag] = Show.instance {
       case `nosave` => "nosave"
@@ -74,14 +74,14 @@ object ServerP {
   }
 
   sealed trait Role
-  final object Role {
+  object Role {
     final case class Client(host: Host, port: Port, lastAcknowledgedReplicationOffset: NonNegLong)
 
     sealed trait ReplicaStatus
-    final case object connect    extends ReplicaStatus
-    final case object connecting extends ReplicaStatus
-    final case object sync       extends ReplicaStatus
-    final case object connected  extends ReplicaStatus
+    case object connect    extends ReplicaStatus
+    case object connecting extends ReplicaStatus
+    case object sync       extends ReplicaStatus
+    case object connected  extends ReplicaStatus
 
     final case class Master(currentReplicationOffset: NonNegLong, clients: Seq[Client]) extends Role
     final case class Slave(masterHost: Host, masterPort: Port, masterViewReplicaStatus: ReplicaStatus, masterReplicationOffset: NonNegLong)
@@ -131,7 +131,7 @@ object ServerP {
   }
 
   final case class ConnectedClients(clients: Seq[Parameters])
-  final object ConnectedClients {
+  object ConnectedClients {
     private val KVPair = "(.*)=(.*)".r
 
     implicit val connectedClientsRead: Bulk ==> ConnectedClients = Read.instance { case Bulk(s) =>
@@ -146,13 +146,13 @@ object ServerP {
   }
 
   final case class Configuration(parameters: Parameters)
-  final object Configuration {
+  object Configuration {
     implicit val configRead: Arr ==> Configuration =
       Read[Arr, Seq[(String, String)]].map(kvs => Configuration(new Parameters(kvs.toMap)))
   }
 
   final case class Info(sections: Map[InfoSection, Parameters])
-  final object Info {
+  object Info {
     private val ISR: String ==> InfoSection = Read.instance {
       case "server"       => Right(InfoSection.server)
       case "clients"      => Right(InfoSection.clients)
@@ -197,7 +197,7 @@ trait ServerP {
   import ServerP.{Configuration, ConnectedClients, Info, InfoSection, Role, ShutdownFlag}
   import shapeless._
 
-  final object servers {
+  object servers {
     final val info = InfoSection
     final val flag = ShutdownFlag
   }
@@ -206,7 +206,7 @@ trait ServerP {
 
   final val bgsave: Protocol.Aux[OK] = Protocol("BGSAVE", Nil).as[Str, OK]
 
-  final object client {
+  object client {
     import Show.{hostShow, portShow}
 
     val getname: Protocol.Aux[Option[ConnectionName]] = Protocol("CLIENT", "GETNAME").opt[GenBulk].as[ConnectionName]
@@ -226,7 +226,7 @@ trait ServerP {
 
   // TODO command?
 
-  final object config {
+  object config {
     def get(parameter: GlobPattern): Protocol.Aux[Configuration] =
       Protocol("CONFIG", "GET" :: parameter.value :: Nil).as[Arr, Configuration]
 

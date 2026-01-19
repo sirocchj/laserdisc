@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -63,7 +63,7 @@ object RedisClient {
     }
   }
 
-  private[laserdisc] final object impl {
+  private[laserdisc] object impl {
     sealed trait Connection[F[_]] {
       def run: F[Fiber[F, Throwable, Unit]]
       def shutdown: F[Unit]
@@ -209,9 +209,9 @@ object RedisClient {
       sealed trait State extends Product with Serializable
       object State {
         final case class ConnectedState(established: Connection[F]) extends State
-        final case object ShutDownState                             extends State
+        case object ShutDownState                                   extends State
         final type ShutDownState = ShutDownState.type
-        final case object InitialState extends State
+        case object InitialState extends State
         final type InitialState = ShutDownState.type
 
         val empty: State = InitialState

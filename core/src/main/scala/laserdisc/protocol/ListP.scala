@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,9 +24,9 @@ package protocol
 
 object ListP {
   sealed trait Position
-  final object Position {
-    final object before extends Position
-    final object after  extends Position
+  object Position {
+    object before extends Position
+    object after  extends Position
 
     implicit val positionShow: Show[Position] = Show.instance {
       case `before` => "BEFORE"
@@ -38,7 +38,7 @@ object ListP {
 trait ListBaseP {
   import shapeless._
 
-  final object listtypes {
+  object listtypes {
     final type ListPosition = ListP.Position
 
     final val ListPosition = ListP.Position

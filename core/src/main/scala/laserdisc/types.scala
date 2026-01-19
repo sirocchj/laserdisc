@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -36,8 +36,8 @@ final case class Time(timestamp: NonNegLong, elapsedMicroseconds: NonNegLong)
 
 sealed trait Direction
 object Direction {
-  final object asc  extends Direction
-  final object desc extends Direction
+  object asc  extends Direction
+  object desc extends Direction
 
   implicit val directionShow: Show[Direction] = Show.instance {
     case `asc`  => "ASC"

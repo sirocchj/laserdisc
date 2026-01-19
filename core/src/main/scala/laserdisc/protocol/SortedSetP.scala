@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,10 +24,10 @@ package protocol
 
 object SortedSetP {
   sealed trait Aggregate
-  final object Aggregate {
-    final object sum extends Aggregate
-    final object min extends Aggregate
-    final object max extends Aggregate
+  object Aggregate {
+    object sum extends Aggregate
+    object min extends Aggregate
+    object max extends Aggregate
 
     implicit val aggregateShow: Show[Aggregate] = Show.instance {
       case `sum` => "SUM"
@@ -37,9 +37,9 @@ object SortedSetP {
   }
 
   sealed trait Flag
-  final object Flag {
-    final object nx extends Flag
-    final object xx extends Flag
+  object Flag {
+    object nx extends Flag
+    object xx extends Flag
 
     implicit val flagShow: Show[Flag] = Show.instance {
       case `nx` => "NX"
@@ -48,7 +48,7 @@ object SortedSetP {
   }
 
   sealed trait LexRange { def min: String; def max: String }
-  final object LexRange {
+  object LexRange       {
     private[this] def open(s: String)  = s"($s"
     private[this] def close(s: String) = s"[$s"
     private[this] final val posInf     = "+"
@@ -100,7 +100,7 @@ object SortedSetP {
   }
 
   sealed trait ScoreRange { def min: String; def max: String }
-  final object ScoreRange {
+  object ScoreRange       {
     import Show.validDoubleShow
 
     private[this] def open(d: ValidDouble)  = s"(${validDoubleShow.show(d)}"
@@ -141,7 +141,7 @@ trait SortedSetBaseP {
 
   private[this] final val zeroIsNone = RESPRead.instance(Read.numZeroIsNone[PosInt])
 
-  final object sortedsets {
+  object sortedsets {
     final val aggregate  = Aggregate
     final val flag       = Flag
     final val lexrange   = LexRange

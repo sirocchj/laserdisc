@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,7 +24,7 @@ package protocol
 
 object GeoP {
   final case class Coordinates(latitude: Latitude, longitude: Longitude)
-  final object Coordinates {
+  object Coordinates {
     implicit final val coordinatesRead: Arr ==> Coordinates = Read.instance {
       case Arr(Bulk(ToDouble(Longitude(long))) +: Bulk(ToDouble(Latitude(lat))) +: Seq()) => Right(Coordinates(lat, long))
       case Arr(other) => Left(RESPDecErr(s"Unexpected coordinates encoding. Expected [longitude, latitude] but was $other"))
@@ -43,7 +43,7 @@ object GeoP {
 
   sealed trait RadiusMode { type Res; def params: List[String]; def r: Arr ==> Res }
   object RadiusMode       {
-    final object coordinates extends RadiusMode {
+    object coordinates extends RadiusMode {
       override final type Res = KeyAndCoordinates
       override final val params: List[String] = List("WITHCOORD")
       override final val r: Arr ==> Res       = radiusModeCoordinatesRead
@@ -51,7 +51,7 @@ object GeoP {
       def &(d: distance.type): coordinatesAndDistance.type = { val _ = d; coordinatesAndDistance }
       def &(h: hash.type): coordinatesAndHash.type         = { val _ = h; coordinatesAndHash }
     }
-    final object distance extends RadiusMode {
+    object distance extends RadiusMode {
       override final type Res = KeyAndDistance
       override final val params: List[String] = List("WITHDIST")
       override final val r: Arr ==> Res       = radiusModeDistanceRead
@@ -59,7 +59,7 @@ object GeoP {
       def &(c: coordinates.type): coordinatesAndDistance.type = { val _ = c; coordinatesAndDistance }
       def &(h: hash.type): distanceAndHash.type               = { val _ = h; distanceAndHash }
     }
-    final object hash extends RadiusMode {
+    object hash extends RadiusMode {
       override final type Res = KeyAndHash
       override final val params: List[String] = List("WITHHASH")
       override final val r: Arr ==> Res       = radiusModeHashRead
@@ -67,28 +67,28 @@ object GeoP {
       def &(c: coordinates.type): coordinatesAndHash.type = { val _ = c; coordinatesAndHash }
       def &(c: distance.type): distanceAndHash.type       = { val _ = c; distanceAndHash }
     }
-    final object coordinatesAndDistance extends RadiusMode {
+    object coordinatesAndDistance extends RadiusMode {
       override final type Res = KeyCoordinatesAndDistance
       override final val params: List[String] = List("WITHCOORD", "WITHDIST")
       override final val r: Arr ==> Res       = radiusModeCoordinatesAndDistanceRead
 
       def &(h: hash.type): all.type = { val _ = h; all }
     }
-    final object coordinatesAndHash extends RadiusMode {
+    object coordinatesAndHash extends RadiusMode {
       override final type Res = KeyCoordinatesAndHash
       override final val params: List[String] = List("WITHCOORD", "WITHHASH")
       override final val r: Arr ==> Res       = radiusModeCoordinatesAndHashRead
 
       def &(d: distance.type): all.type = { val _ = d; all }
     }
-    final object distanceAndHash extends RadiusMode {
+    object distanceAndHash extends RadiusMode {
       override final type Res = KeyDistanceAndHash
       override final val params: List[String] = List("WITHDIST", "WITHHASH")
       override final val r: Arr ==> Res       = radiusModeDistanceAndHashRead
 
       def &(c: coordinates.type): all.type = { val _ = c; all }
     }
-    final object all extends RadiusMode {
+    object all extends RadiusMode {
       override final type Res = KeyCoordinatesDistanceAndHash
       override final val params: List[String] = List("WITHCOORD", "WITHDIST", "WITHHASH")
       override final val r: Arr ==> Res       = radiusModeAllRead
@@ -105,11 +105,11 @@ object GeoP {
   }
 
   sealed trait Unit
-  final object Unit {
-    final case object meters     extends Unit
-    final case object kilometers extends Unit
-    final case object miles      extends Unit
-    final case object feet       extends Unit
+  object Unit {
+    case object meters     extends Unit
+    case object kilometers extends Unit
+    case object miles      extends Unit
+    case object feet       extends Unit
 
     implicit val unitShow: Show[Unit] = Show.instance {
       case `meters`     => "m"
@@ -174,7 +174,7 @@ object GeoP {
 trait GeoBaseP {
   import shapeless._
 
-  final object geotypes {
+  object geotypes {
     final type GeoCoordinates         = GeoP.Coordinates
     final type GeoKeyAndCoord         = GeoP.KeyAndCoordinates
     final type GeoKeyAndDist          = GeoP.KeyAndDistance
@@ -363,7 +363,7 @@ trait GeoBaseP {
   ): Protocol.Aux[NonNegInt] =
     Protocol("GEORADIUSBYMEMBER", key :: member :: radius :: unit :: "COUNT" :: limit :: sort :: store.params :: HNil).as[Num, NonNegInt]
 
-  final object ro {
+  object ro {
     final def georadius(key: Key, coordinates: GeoCoordinates, radius: NonNegDouble, unit: GeoUnit): Protocol.Aux[Seq[Key]] =
       Protocol("GEORADIUS_RO", key :: coordinates.longitude :: coordinates.latitude :: radius :: unit :: HNil).as[Arr, Seq[Key]]
     final def georadius(key: Key, coordinates: GeoCoordinates, radius: NonNegDouble, unit: GeoUnit, limit: PosInt): Protocol.Aux[Seq[Key]] =

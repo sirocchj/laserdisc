@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -92,7 +92,7 @@ object CLI extends IOApp { self =>
       case _ => IO(println("please supply host and port (space separated)")).as(ExitCode.Error)
     }
 
-  private[cli] final object impl {
+  private[cli] object impl {
     private[this] val tb = universe.runtimeMirror(self.getClass.getClassLoader).mkToolBox()
 
     def mkStream(host: Host, port: Port): Stream[IO, ExitCode] =
@@ -115,7 +115,7 @@ object CLI extends IOApp { self =>
             .compile
             .drain
 
-        final object ToMillis {
+        object ToMillis {
           def unapply(nanos: Long): Option[Double] = Some(nanos.toDouble / 1000000d)
         }
 

@@ -92,35 +92,31 @@ final val StringLengthMaxValueWit = 4294967295L
 
 // Refinements
 final type ConnectionNameRef = OneOrMoreRef And Forall[NoWhitespace And NoControlChar]
-final type DbIndexRef        = Interval.Closed[0, DbIndexMaxValueWit]
-final type GeoHashRef        = MatchesRegex[GeoHashRegexWit]
-final type GlobPatternRef    = MatchesRegex[GlobPatternRegexWit]
-final type HostRef           = Equal[AllNICsEqWit] Or
-  Equal[LoopbackEqWit] Or
-  (Not[IPv4] And MaxSize[Rfc1123HostnameMaxLengthWit] And MatchesRegex[Rfc1123HostnameRegexWit]) Or
-  Rfc1918PrivateSpec Or
-  Rfc5737TestnetSpec Or
-  Rfc3927LocalLinkSpec Or
-  Rfc2544BenchmarkSpec
+final type DbIndexRef        = Interval.Closed[0, DbIndexMaxValueWit.type]
+final type GeoHashRef        = MatchesRegex[GeoHashRegexWit.type]
+final type GlobPatternRef    = MatchesRegex[GlobPatternRegexWit.type]
+final type HostRef           = Equal[AllNICsEqWit.type] Or Equal[LoopbackEqWit.type] Or
+  (Not[IPv4] And MaxSize[Rfc1123HostnameMaxLengthWit.type] And MatchesRegex[Rfc1123HostnameRegexWit.type]) Or Rfc1918PrivateSpec Or
+  Rfc5737TestnetSpec Or Rfc3927LocalLinkSpec Or Rfc2544BenchmarkSpec
 final type IndexRef         = True
 final type KeyRef           = OneOrMoreRef And Forall[NoControlChar]
-final type LatitudeRef      = Interval.Closed[LatitudeMinValueWit, LatitudeMaxValueWit]
-final type LongitudeRef     = Interval.Closed[LongitudeMinValueWit, LongitudeMaxValueWit]
-final type NodeIdRef        = MatchesRegex[NodeIdRegexWit]
-final type NOKEYRef         = Equal[NOKEYEqWit]
+final type LatitudeRef      = Interval.Closed[LatitudeMinValueWit.type, LatitudeMaxValueWit.type]
+final type LongitudeRef     = Interval.Closed[LongitudeMinValueWit.type, LongitudeMaxValueWit.type]
+final type NodeIdRef        = MatchesRegex[NodeIdRegexWit.type]
+final type NOKEYRef         = Equal[NOKEYEqWit.type]
 final type NonNegRef        = NonNegative
 final type NonNegDoubleRef  = ValidDoubleRef And NonNegRef
 final type NonZeroDoubleRef = ValidDoubleRef And Not[Equal[0.0d]]
 final type NonZeroIntRef    = Not[Equal[0]]
 final type NonZeroLongRef   = Not[Equal[0L]]
-final type OKRef            = Equal[OKEqWit]
+final type OKRef            = Equal[OKEqWit.type]
 final type OneOrMoreRef     = NonEmpty
-final type PONGRef          = Equal[PONGEqWit]
-final type PortRef          = Interval.Closed[PortMinValueWit, PortMaxValueWit]
+final type PONGRef          = Equal[PONGEqWit.type]
+final type PortRef          = Interval.Closed[PortMinValueWit.type, PortMaxValueWit.type]
 final type PosRef           = Positive
-final type RangeOffsetRef   = Interval.Closed[0, RangeOffsetMaxValueWit]
-final type SlotRef          = Interval.Closed[0, SlotMaxValueWit]
-final type StringLengthRef  = Interval.Closed[0L, StringLengthMaxValueWit]
+final type RangeOffsetRef   = Interval.Closed[0, RangeOffsetMaxValueWit.type]
+final type SlotRef          = Interval.Closed[0, SlotMaxValueWit.type]
+final type StringLengthRef  = Interval.Closed[0L, StringLengthMaxValueWit.type]
 final type TwoOrMoreRef     = MinSize[2]
 final type ValidDoubleRef   = NonNaN
 
@@ -157,40 +153,40 @@ final type TwoOrMoreWeightedKeys = List[(Key, ValidDouble)] Refined TwoOrMoreRef
 final type ValidDouble           = Double Refined ValidDoubleRef
 
 // New types' ops
-final object OneOrMore {
-  def from[A](l: List[A])(implicit rt: RefinedType.AuxT[OneOrMore[A], List[A]]): String | OneOrMore[A] = rt.refine(l)
-  def unapply[A](l: List[A]): Option[OneOrMore[A]]                                                     = from(l).toOption
-  def unsafeFrom[A](l: List[A])(implicit rt: RefinedType.AuxT[OneOrMore[A], List[A]]): OneOrMore[A]    = rt.unsafeRefine(l)
+object OneOrMore {
+  def from[A](l: List[A])(implicit rt: RefinedType.AuxT[OneOrMore[A], List[A]]): Either[String, OneOrMore[A]] = rt.refine(l)
+  def unapply[A](l: List[A]): Option[OneOrMore[A]]                                                            = from(l).toOption
+  def unsafeFrom[A](l: List[A])(implicit rt: RefinedType.AuxT[OneOrMore[A], List[A]]): OneOrMore[A]           = rt.unsafeRefine(l)
 }
 
-final object ConnectionName        extends RefinedTypeOps[ConnectionName, String]
-final object DbIndex               extends RefinedTypeOps.Numeric[DbIndex, Int]
-final object GeoHash               extends RefinedTypeOps[GeoHash, String]
-final object GlobPattern           extends RefinedTypeOps[GlobPattern, String]
-final object Host                  extends RefinedTypeOps[Host, String]
-final object Index                 extends RefinedTypeOps.Numeric[Index, Long]
-final object Key                   extends RefinedTypeOps[Key, String]
-final object Latitude              extends RefinedTypeOps.Numeric[Latitude, Double]
-final object Longitude             extends RefinedTypeOps.Numeric[Longitude, Double]
-final object NodeId                extends RefinedTypeOps[NodeId, String]
-final object NonNegInt             extends RefinedTypeOps.Numeric[NonNegInt, Int]
-final object NonNegLong            extends RefinedTypeOps.Numeric[NonNegLong, Long]
-final object NonNegDouble          extends RefinedTypeOps.Numeric[NonNegDouble, Double]
-final object NonZeroDouble         extends RefinedTypeOps.Numeric[NonZeroDouble, Double]
-final object NonZeroInt            extends RefinedTypeOps.Numeric[NonZeroInt, Int]
-final object NonZeroLong           extends RefinedTypeOps.Numeric[NonZeroLong, Long]
-final object OneOrMoreKeys         extends RefinedTypeOps[OneOrMoreKeys, List[Key]]
-final object Port                  extends RefinedTypeOps.Numeric[Port, Int]
-final object PosInt                extends RefinedTypeOps.Numeric[PosInt, Int]
-final object PosLong               extends RefinedTypeOps.Numeric[PosLong, Long]
-final object RangeOffset           extends RefinedTypeOps.Numeric[RangeOffset, Int]
-final object Slot                  extends RefinedTypeOps.Numeric[Slot, Int]
-final object StringLength          extends RefinedTypeOps.Numeric[StringLength, Long]
-final object TwoOrMoreKeys         extends RefinedTypeOps[TwoOrMoreKeys, List[Key]]
-final object TwoOrMoreWeightedKeys extends RefinedTypeOps[TwoOrMoreWeightedKeys, List[(Key, ValidDouble)]]
-final object ValidDouble           extends RefinedTypeOps.Numeric[ValidDouble, Double]
+object ConnectionName        extends RefinedTypeOps[ConnectionName, String]
+object DbIndex               extends RefinedTypeOps.Numeric[DbIndex, Int]
+object GeoHash               extends RefinedTypeOps[GeoHash, String]
+object GlobPattern           extends RefinedTypeOps[GlobPattern, String]
+object Host                  extends RefinedTypeOps[Host, String]
+object Index                 extends RefinedTypeOps.Numeric[Index, Long]
+object Key                   extends RefinedTypeOps[Key, String]
+object Latitude              extends RefinedTypeOps.Numeric[Latitude, Double]
+object Longitude             extends RefinedTypeOps.Numeric[Longitude, Double]
+object NodeId                extends RefinedTypeOps[NodeId, String]
+object NonNegInt             extends RefinedTypeOps.Numeric[NonNegInt, Int]
+object NonNegLong            extends RefinedTypeOps.Numeric[NonNegLong, Long]
+object NonNegDouble          extends RefinedTypeOps.Numeric[NonNegDouble, Double]
+object NonZeroDouble         extends RefinedTypeOps.Numeric[NonZeroDouble, Double]
+object NonZeroInt            extends RefinedTypeOps.Numeric[NonZeroInt, Int]
+object NonZeroLong           extends RefinedTypeOps.Numeric[NonZeroLong, Long]
+object OneOrMoreKeys         extends RefinedTypeOps[OneOrMoreKeys, List[Key]]
+object Port                  extends RefinedTypeOps.Numeric[Port, Int]
+object PosInt                extends RefinedTypeOps.Numeric[PosInt, Int]
+object PosLong               extends RefinedTypeOps.Numeric[PosLong, Long]
+object RangeOffset           extends RefinedTypeOps.Numeric[RangeOffset, Int]
+object Slot                  extends RefinedTypeOps.Numeric[Slot, Int]
+object StringLength          extends RefinedTypeOps.Numeric[StringLength, Long]
+object TwoOrMoreKeys         extends RefinedTypeOps[TwoOrMoreKeys, List[Key]]
+object TwoOrMoreWeightedKeys extends RefinedTypeOps[TwoOrMoreWeightedKeys, List[(Key, ValidDouble)]]
+object ValidDouble           extends RefinedTypeOps.Numeric[ValidDouble, Double]
 
-final val LoopbackHost: Host = Host.unsafeFrom(LoopbackEqWit.value)
+final val LoopbackHost: Host = Host.unsafeFrom(LoopbackEqWit)
 final val NOKEY: NOKEY       = RefType.applyRefM[NOKEY]("NOKEY")
 final val OK: OK             = RefType.applyRefM[OK]("OK")
 final val PONG: PONG         = RefType.applyRefM[PONG]("PONG")
@@ -203,7 +199,7 @@ private[laserdisc] final val CRLF     = s"\r$LF_CH"
 private[laserdisc] final val LF       = s"$LF_CH"
 private[laserdisc] final val SPACE    = s"$SPACE_CH"
 
-private[laserdisc] final object ToInt {
+private[laserdisc] object ToInt {
   def unapply(l: Long): Option[Int] =
     try Some(j.Math.toIntExact(l))
     catch { case _: ArithmeticException => None }
@@ -211,12 +207,12 @@ private[laserdisc] final object ToInt {
     try Some(j.Integer.parseInt(s))
     catch { case _: NumberFormatException => None }
 }
-private[laserdisc] final object ToLong {
+private[laserdisc] object ToLong {
   def unapply(s: String): Option[Long] =
     try Some(j.Long.parseLong(s))
     catch { case _: NumberFormatException => None }
 }
-private[laserdisc] final object ToDouble {
+private[laserdisc] object ToDouble {
   def unapply(s: String): Option[Double] =
     try Some(j.Double.parseDouble(s))
     catch { case _: NumberFormatException => None }

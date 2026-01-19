@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,14 +24,14 @@ package protocol
 
 object KeyP {
   sealed trait Encoding
-  final object Encoding {
-    final case object raw        extends Encoding
-    final case object int        extends Encoding
-    final case object ziplist    extends Encoding
-    final case object linkedlist extends Encoding
-    final case object intset     extends Encoding
-    final case object hashtable  extends Encoding
-    final case object skiplist   extends Encoding
+  object Encoding {
+    case object raw        extends Encoding
+    case object int        extends Encoding
+    case object ziplist    extends Encoding
+    case object linkedlist extends Encoding
+    case object intset     extends Encoding
+    case object hashtable  extends Encoding
+    case object skiplist   extends Encoding
 
     implicit final val bulk2EncodingRead: Bulk ==> Encoding = Read.instance {
       case Bulk("raw")        => Right(raw)
@@ -46,14 +46,14 @@ object KeyP {
   }
 
   sealed trait MigrateMode { def params: List[String] }
-  final object MigrateMode {
-    final object copy    extends MigrateMode { override final val params: List[String] = List("COPY")            }
-    final object replace extends MigrateMode { override final val params: List[String] = List("REPLACE")         }
-    final object both    extends MigrateMode { override final val params: List[String] = List("COPY", "REPLACE") }
+  object MigrateMode       {
+    object copy    extends MigrateMode { override final val params: List[String] = List("COPY")            }
+    object replace extends MigrateMode { override final val params: List[String] = List("REPLACE")         }
+    object both    extends MigrateMode { override final val params: List[String] = List("COPY", "REPLACE") }
   }
 
   sealed trait RestoreEviction { def param: String; def seconds: NonNegInt }
-  final object RestoreEviction {
+  object RestoreEviction       {
     final case class IdleTime(override final val seconds: NonNegInt) extends RestoreEviction {
       override final val param: String = "IDLETIME"
     }
@@ -63,25 +63,25 @@ object KeyP {
   }
 
   sealed trait RestoreMode { def params: List[String] }
-  final object RestoreMode {
-    final case object replace     extends RestoreMode { override final val params: List[String] = List("REPLACE")           }
-    final case object absolutettl extends RestoreMode { override final val params: List[String] = List("ABSTTL")            }
-    final case object both        extends RestoreMode { override final val params: List[String] = List("REPLACE", "ABSTTL") }
+  object RestoreMode       {
+    case object replace     extends RestoreMode { override final val params: List[String] = List("REPLACE")           }
+    case object absolutettl extends RestoreMode { override final val params: List[String] = List("ABSTTL")            }
+    case object both        extends RestoreMode { override final val params: List[String] = List("REPLACE", "ABSTTL") }
   }
 
   sealed trait Type
-  final object Type {
-    final case object string extends Type
-    final case object list   extends Type
-    final case object set    extends Type
-    final case object zset   extends Type
-    final case object hash   extends Type
+  object Type {
+    case object string extends Type
+    case object list   extends Type
+    case object set    extends Type
+    case object zset   extends Type
+    case object hash   extends Type
   }
 
   sealed trait TTLResponse
   object TTLResponse {
-    final case object NoKey                       extends TTLResponse
-    final case object NoExpire                    extends TTLResponse
+    case object NoKey                             extends TTLResponse
+    case object NoExpire                          extends TTLResponse
     final case class ExpireAfter(ttl: NonNegLong) extends TTLResponse
 
     implicit final val num2TTLResponseRead: Num ==> TTLResponse = Read.instance {
@@ -96,7 +96,7 @@ object KeyP {
 trait KeyBaseP {
   import shapeless._
 
-  final object keytypes {
+  object keytypes {
     final type KeyEncoding        = KeyP.Encoding
     final type KeyMigrateMode     = KeyP.MigrateMode
     final type KeyRestoreEviction = KeyP.RestoreEviction
@@ -173,7 +173,7 @@ trait KeyBaseP {
 
   final def move(key: Key, db: DbIndex): Protocol.Aux[Boolean] = Protocol("MOVE", key :: db :: HNil).as[Num, Boolean]
 
-  final object obj {
+  object obj {
     def encoding(key: Key): Protocol.Aux[Option[KeyEncoding]] =
       Protocol("OBJECT", "ENCODING" :: key.value :: Nil).opt[GenBulk].as[KeyEncoding]
 

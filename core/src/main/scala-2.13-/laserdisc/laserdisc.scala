@@ -160,38 +160,38 @@ package object laserdisc {
   final type ValidDouble           = Double Refined ValidDoubleRef
 
   // New types' ops
-  final object OneOrMore {
+  object OneOrMore {
     def from[A](l: List[A])(implicit rt: RefinedType.AuxT[OneOrMore[A], List[A]]): String | OneOrMore[A] = rt.refine(l)
     def unapply[A](l: List[A]): Option[OneOrMore[A]]                                                     = from(l).toOption
     def unsafeFrom[A](l: List[A])(implicit rt: RefinedType.AuxT[OneOrMore[A], List[A]]): OneOrMore[A]    = rt.unsafeRefine(l)
   }
 
-  final object ConnectionName        extends RefinedTypeOps[ConnectionName, String]
-  final object DbIndex               extends RefinedTypeOps.Numeric[DbIndex, Int]
-  final object GeoHash               extends RefinedTypeOps[GeoHash, String]
-  final object GlobPattern           extends RefinedTypeOps[GlobPattern, String]
-  final object Host                  extends RefinedTypeOps[Host, String]
-  final object Index                 extends RefinedTypeOps.Numeric[Index, Long]
-  final object Key                   extends RefinedTypeOps[Key, String]
-  final object Latitude              extends RefinedTypeOps.Numeric[Latitude, Double]
-  final object Longitude             extends RefinedTypeOps.Numeric[Longitude, Double]
-  final object NodeId                extends RefinedTypeOps[NodeId, String]
-  final object NonNegInt             extends RefinedTypeOps.Numeric[NonNegInt, Int]
-  final object NonNegLong            extends RefinedTypeOps.Numeric[NonNegLong, Long]
-  final object NonNegDouble          extends RefinedTypeOps.Numeric[NonNegDouble, Double]
-  final object NonZeroDouble         extends RefinedTypeOps.Numeric[NonZeroDouble, Double]
-  final object NonZeroInt            extends RefinedTypeOps.Numeric[NonZeroInt, Int]
-  final object NonZeroLong           extends RefinedTypeOps.Numeric[NonZeroLong, Long]
-  final object OneOrMoreKeys         extends RefinedTypeOps[OneOrMoreKeys, List[Key]]
-  final object Port                  extends RefinedTypeOps.Numeric[Port, Int]
-  final object PosInt                extends RefinedTypeOps.Numeric[PosInt, Int]
-  final object PosLong               extends RefinedTypeOps.Numeric[PosLong, Long]
-  final object RangeOffset           extends RefinedTypeOps.Numeric[RangeOffset, Int]
-  final object Slot                  extends RefinedTypeOps.Numeric[Slot, Int]
-  final object StringLength          extends RefinedTypeOps.Numeric[StringLength, Long]
-  final object TwoOrMoreKeys         extends RefinedTypeOps[TwoOrMoreKeys, List[Key]]
-  final object TwoOrMoreWeightedKeys extends RefinedTypeOps[TwoOrMoreWeightedKeys, List[(Key, ValidDouble)]]
-  final object ValidDouble           extends RefinedTypeOps.Numeric[ValidDouble, Double]
+  object ConnectionName        extends RefinedTypeOps[ConnectionName, String]
+  object DbIndex               extends RefinedTypeOps.Numeric[DbIndex, Int]
+  object GeoHash               extends RefinedTypeOps[GeoHash, String]
+  object GlobPattern           extends RefinedTypeOps[GlobPattern, String]
+  object Host                  extends RefinedTypeOps[Host, String]
+  object Index                 extends RefinedTypeOps.Numeric[Index, Long]
+  object Key                   extends RefinedTypeOps[Key, String]
+  object Latitude              extends RefinedTypeOps.Numeric[Latitude, Double]
+  object Longitude             extends RefinedTypeOps.Numeric[Longitude, Double]
+  object NodeId                extends RefinedTypeOps[NodeId, String]
+  object NonNegInt             extends RefinedTypeOps.Numeric[NonNegInt, Int]
+  object NonNegLong            extends RefinedTypeOps.Numeric[NonNegLong, Long]
+  object NonNegDouble          extends RefinedTypeOps.Numeric[NonNegDouble, Double]
+  object NonZeroDouble         extends RefinedTypeOps.Numeric[NonZeroDouble, Double]
+  object NonZeroInt            extends RefinedTypeOps.Numeric[NonZeroInt, Int]
+  object NonZeroLong           extends RefinedTypeOps.Numeric[NonZeroLong, Long]
+  object OneOrMoreKeys         extends RefinedTypeOps[OneOrMoreKeys, List[Key]]
+  object Port                  extends RefinedTypeOps.Numeric[Port, Int]
+  object PosInt                extends RefinedTypeOps.Numeric[PosInt, Int]
+  object PosLong               extends RefinedTypeOps.Numeric[PosLong, Long]
+  object RangeOffset           extends RefinedTypeOps.Numeric[RangeOffset, Int]
+  object Slot                  extends RefinedTypeOps.Numeric[Slot, Int]
+  object StringLength          extends RefinedTypeOps.Numeric[StringLength, Long]
+  object TwoOrMoreKeys         extends RefinedTypeOps[TwoOrMoreKeys, List[Key]]
+  object TwoOrMoreWeightedKeys extends RefinedTypeOps[TwoOrMoreWeightedKeys, List[(Key, ValidDouble)]]
+  object ValidDouble           extends RefinedTypeOps.Numeric[ValidDouble, Double]
 
   final val LoopbackHost: Host = Host.unsafeFrom(LoopbackEqWit.value)
   final val NOKEY: NOKEY       = RefType.applyRefM[NOKEY]("NOKEY")
@@ -206,7 +206,7 @@ package object laserdisc {
   private[laserdisc] final val LF       = s"$LF_CH"
   private[laserdisc] final val SPACE    = s"$SPACE_CH"
 
-  private[laserdisc] final object ToInt {
+  private[laserdisc] object ToInt {
     def unapply(l: Long): Option[Int] =
       try Some(j.Math.toIntExact(l))
       catch { case _: ArithmeticException => None }
@@ -214,12 +214,12 @@ package object laserdisc {
       try Some(j.Integer.parseInt(s))
       catch { case _: NumberFormatException => None }
   }
-  private[laserdisc] final object ToLong {
+  private[laserdisc] object ToLong {
     def unapply(s: String): Option[Long] =
       try Some(j.Long.parseLong(s))
       catch { case _: NumberFormatException => None }
   }
-  private[laserdisc] final object ToDouble {
+  private[laserdisc] object ToDouble {
     def unapply(s: String): Option[Double] =
       try Some(j.Double.parseDouble(s))
       catch { case _: NumberFormatException => None }

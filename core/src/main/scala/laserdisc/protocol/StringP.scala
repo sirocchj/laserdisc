@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,9 +26,9 @@ import scala.annotation.nowarn
 
 object StringP {
   sealed trait Bit
-  final object Bit {
-    final object set   extends Bit
-    final object unset extends Bit
+  object Bit {
+    object set   extends Bit
+    object unset extends Bit
 
     implicit val bitShow: Show[Bit] = Show.instance {
       case `set`   => "1"
@@ -38,10 +38,10 @@ object StringP {
   }
 
   sealed trait Bitwise
-  final object Bitwise {
-    final case object and extends Bitwise
-    final case object or  extends Bitwise
-    final case object xor extends Bitwise
+  object Bitwise {
+    case object and extends Bitwise
+    case object or  extends Bitwise
+    case object xor extends Bitwise
 
     implicit val bitwiseShow: Show[Bitwise] = Show.instance {
       case `and` => "AND"
@@ -51,11 +51,11 @@ object StringP {
   }
 
   sealed trait Expiry { def value: PosLong; def unit: Expiry.Unit }
-  final object Expiry {
+  object Expiry       {
     sealed trait Unit
-    final object Unit {
-      final case object milliseconds extends Unit
-      final case object seconds      extends Unit
+    object Unit {
+      case object milliseconds extends Unit
+      case object seconds      extends Unit
 
       implicit val expiryUnitShow: Show[Unit] = Show.instance {
         case `milliseconds` => "PX"
@@ -76,9 +76,9 @@ object StringP {
   }
 
   sealed trait Flag
-  final object Flag {
-    final object nx extends Flag
-    final object xx extends Flag
+  object Flag {
+    object nx extends Flag
+    object xx extends Flag
 
     implicit val flagShow: Show[Flag] = Show.instance {
       case `nx` => "NX"
@@ -103,7 +103,7 @@ trait StringBaseP {
 
   private[this] final val minusOneIsNone = RESPRead.instance(Read.numMinusOneIsNone[NonNegInt])
 
-  final object strings {
+  object strings {
     final val bit     = Bit
     final val bitwise = Bitwise
     final val expiry  = Expiry
