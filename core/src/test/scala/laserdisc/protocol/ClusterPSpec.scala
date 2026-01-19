@@ -156,7 +156,7 @@ final class ClusterPSpec extends BaseSpec with ClusterP {
     )
 
   property("The Cluster protocol using addslots roundtrips successfully given one or more slots") {
-    forAll { ss: OneOrMore[Slot] =>
+    forAll { (ss: OneOrMore[Slot]) =>
       val protocol = addslots(ss)
       assertEquals(protocol.encode, Arr(Bulk("CLUSTER") :: Bulk("ADDSLOTS") :: ss.value.map(Bulk(_))))
       assertEquals(protocol.decode(Str(OK.value)), OK)
@@ -196,7 +196,7 @@ final class ClusterPSpec extends BaseSpec with ClusterP {
   }
 
   property("The Cluster protocol using delslots roundtrips successfully given one or more slots") {
-    forAll { ss: OneOrMore[Slot] =>
+    forAll { (ss: OneOrMore[Slot]) =>
       val protocol = delslots(ss)
       assertEquals(protocol.encode, Arr(Bulk("CLUSTER") :: Bulk("DELSLOTS") :: ss.value.map(Bulk(_))))
       assertEquals(protocol.decode(Str(OK.value)), OK)
@@ -210,7 +210,7 @@ final class ClusterPSpec extends BaseSpec with ClusterP {
   }
 
   property("The Cluster protocol using failover roundtrips successfully given mode") {
-    forAll { m: ClusterFailoverMode =>
+    forAll { (m: ClusterFailoverMode) =>
       val protocol = failover(m)
       assertEquals(protocol.encode, Arr(Bulk("CLUSTER"), Bulk("FAILOVER"), Bulk(m)))
       assertEquals(protocol.decode(Str(OK.value)), OK)
@@ -218,7 +218,7 @@ final class ClusterPSpec extends BaseSpec with ClusterP {
   }
 
   property("The Cluster protocol using forget roundtrips successfully given a nodeId") {
-    forAll { n: NodeId =>
+    forAll { (n: NodeId) =>
       val protocol = forget(n)
       assertEquals(protocol.encode, Arr(Bulk("CLUSTER"), Bulk("FORGET"), Bulk(n)))
       assertEquals(protocol.decode(Str(OK.value)), OK)
@@ -278,7 +278,7 @@ final class ClusterPSpec extends BaseSpec with ClusterP {
   }
 
   property("The Cluster protocol using replicate roundtrips successfully given a nodeId") {
-    forAll { n: NodeId =>
+    forAll { (n: NodeId) =>
       val protocol = replicate(n)
       assertEquals(protocol.encode, Arr(Bulk("CLUSTER"), Bulk("REPLICATE"), Bulk(n)))
       assertEquals(protocol.decode(Str(OK.value)), OK)
@@ -292,7 +292,7 @@ final class ClusterPSpec extends BaseSpec with ClusterP {
   }
 
   property("The Cluster protocol using reset roundtrips successfully given reset mode") {
-    forAll { m: ClusterResetMode =>
+    forAll { (m: ClusterResetMode) =>
       val protocol = reset(m)
       assertEquals(protocol.encode, Arr(Bulk("CLUSTER"), Bulk("RESET"), Bulk(m)))
       assertEquals(protocol.decode(Str(OK.value)), OK)
@@ -306,7 +306,7 @@ final class ClusterPSpec extends BaseSpec with ClusterP {
   }
 
   property("The Cluster protocol using setconfigepoch roundtrips successfully given a config epoch") {
-    forAll { nni: NonNegInt =>
+    forAll { (nni: NonNegInt) =>
       val protocol = setconfigepoch(nni)
       assertEquals(protocol.encode, Arr(Bulk("CLUSTER"), Bulk("SET-CONFIG-EPOCH"), Bulk(nni)))
       assertEquals(protocol.decode(Str(OK.value)), OK)
@@ -314,7 +314,7 @@ final class ClusterPSpec extends BaseSpec with ClusterP {
   }
 
   property("The Cluster protocol using setslot roundtrips successfully given a slot") {
-    forAll { s: Slot =>
+    forAll { (s: Slot) =>
       val protocol = setslot(s)
       assertEquals(protocol.encode, Arr(Bulk("CLUSTER"), Bulk("SETSLOT"), Bulk(s), Bulk("STABLE")))
       assertEquals(protocol.decode(Str(OK.value)), OK)

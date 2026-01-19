@@ -2,6 +2,7 @@ import sbtcrossproject.CrossProject
 
 val scala_212 = "2.12.21"
 val scala_213 = "2.13.18"
+val scala_3   = "3.3.7"
 
 val V = new {
   val cats                   = "2.13.0"
@@ -23,10 +24,12 @@ val V = new {
   val scalacheck             = "1.19.0"
   val `scala-redis`          = "3.30"
   val `scodec-bits`          = "1.2.4"
-  val `scodec-core`          = "1.11.11"
+  val `scodec-core_scala2`   = "1.11.11"
+  val `scodec-core_scala3`   = "2.3.3"
   val `scodec-stream`        = "3.0.2"
   val scredis                = "2.3.3"
   val shapeless              = "2.3.13"
+  val `shapeless3-deriving`  = "3.5.0"
   val slf4j                  = "2.0.16"
 }
 
@@ -43,7 +46,7 @@ val V = new {
 Global / concurrentRestrictions += Tags.limit(Tags.Compile, 1)
 Global / excludeLintKeys += scalaJSLinkerConfig
 
-ThisBuild / tlBaseVersion              := "0.7"
+ThisBuild / tlBaseVersion              := "0.8"
 ThisBuild / tlCiReleaseBranches        := Seq("master")
 ThisBuild / organization               := "io.laserdisc"
 ThisBuild / organizationName           := "LaserDisc"
@@ -111,15 +114,21 @@ lazy val core = laserdiscCrossModule("core")
   .enablePlugins(BoilerplatePlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "com.chuusai"    %%% "shapeless"          % V.shapeless,
       "eu.timepit"     %%% "refined"            % V.refined,
       "org.scodec"     %%% "scodec-bits"        % V.`scodec-bits`,
-      "org.scodec"     %%% "scodec-core"        % V.`scodec-core`,
       "eu.timepit"     %%% "refined-scalacheck" % V.refined            % Test,
       "org.scalacheck" %%% "scalacheck"         % V.scalacheck         % Test,
       "org.scalameta"  %%% "munit"              % V.munit              % Test,
       "org.scalameta"  %%% "munit-scalacheck"   % V.`munit-scalacheck` % Test
     ),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) =>
+          Seq("org.scodec" %%% "scodec-core" % V.`scodec-core_scala3`, "org.typelevel" %%% "shapeless3-deriving" % V.`shapeless3-deriving`)
+        case _ =>
+          Seq("org.scodec" %%% "scodec-core" % V.`scodec-core_scala2`, "com.chuusai" %%% "shapeless" % V.shapeless)
+      }
+    },
     Compile / boilerplateSource := crossProjectBaseDirectory.value / "src" / "main" / "boilerplate",
     Test / boilerplateSource    := crossProjectBaseDirectory.value / "src" / "test" / "boilerplate"
   )
@@ -140,8 +149,6 @@ lazy val laws = laserdiscCrossModule("laws")
     libraryDependencies ++= Seq(
       "eu.timepit"     %%% "refined"            % V.refined,
       "org.scodec"     %%% "scodec-bits"        % V.`scodec-bits`,
-      "org.scodec"     %%% "scodec-core"        % V.`scodec-core`,
-      "com.chuusai"    %%% "shapeless"          % V.shapeless,
       "org.typelevel"  %%% "cats-core"          % V.cats,
       "org.typelevel"  %%% "cats-laws"          % V.cats,
       "eu.timepit"     %%% "refined-scalacheck" % V.refined            % Test,
@@ -150,7 +157,15 @@ lazy val laws = laserdiscCrossModule("laws")
       "org.scalameta"  %%% "munit-scalacheck"   % V.`munit-scalacheck` % Test,
       "org.typelevel"  %%% "discipline-core"    % V.`cats-discipline`  % Test,
       "org.typelevel"  %%% "discipline-munit"   % V.`discipline-munit` % Test
-    )
+    ),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) =>
+          Seq("org.scodec" %%% "scodec-core" % V.`scodec-core_scala3`, "org.typelevel" %%% "shapeless3-deriving" % V.`shapeless3-deriving`)
+        case _ =>
+          Seq("org.scodec" %%% "scodec-core" % V.`scodec-core_scala2`, "com.chuusai" %%% "shapeless" % V.shapeless)
+      }
+    }
   )
 
 lazy val fs2 = laserdiscCrossModule("fs2")

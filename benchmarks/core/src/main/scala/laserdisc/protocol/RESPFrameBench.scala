@@ -13,66 +13,66 @@ class RESPFrameBench {
   private[this] object Fixture extends RESPFrameFixture
   import Fixture._
 
-  val mixedNoArr    = bytesOf(mixedNoArrList)
-  val arrOneLevel   = bytesOf(arrOneLevelList)
-  val arrFiveLevels = bytesOf(arrFiveLevelsList)
+  private final val mixedNoArr    = bytesOf(mixedNoArrList)
+  private final val arrOneLevel   = bytesOf(arrOneLevelList)
+  private final val arrFiveLevels = bytesOf(arrFiveLevelsList)
 
-  val empty             = BitVector.empty
-  val mixedNoArrFull    = BitVector(mixedNoArr)
-  val arrOneLevelFull   = BitVector(arrOneLevel)
-  val arrFiveLevelsFull = BitVector(arrFiveLevels)
+  private final val empty             = BitVector.empty
+  private final val mixedNoArrFull    = BitVector(mixedNoArr)
+  private final val arrOneLevelFull   = BitVector(arrOneLevel)
+  private final val arrFiveLevelsFull = BitVector(arrFiveLevels)
 
-  @Benchmark def frameOfFullBaseline(bh: Blackhole) = {
+  @Benchmark def frameOfFullBaseline(bh: Blackhole): Unit = {
     val frame = EmptyFrame.append(empty)
     bh.consume(frame)
   }
-  @Benchmark def frameOfMixedNoArrFull(bh: Blackhole) = {
+  @Benchmark def frameOfMixedNoArrFull(bh: Blackhole): Unit = {
     val frame = EmptyFrame.append(mixedNoArrFull)
     bh.consume(frame)
   }
-  @Benchmark def frameOfMixedArrOneLevelFull(bh: Blackhole) = {
+  @Benchmark def frameOfMixedArrOneLevelFull(bh: Blackhole): Unit = {
     val frame = EmptyFrame.append(arrOneLevelFull)
     bh.consume(frame)
   }
-  @Benchmark def frameOfMixedArrFiveLevelsFull(bh: Blackhole) = {
+  @Benchmark def frameOfMixedArrFiveLevelsFull(bh: Blackhole): Unit = {
     val frame = EmptyFrame.append(arrFiveLevelsFull)
     bh.consume(frame)
   }
 
-  val mixedNoArrSmallChunkBuffers    = groupInChunks(mixedNoArr, 128)
-  val arrOneLevelSmallChunkBuffers   = groupInChunks(arrOneLevel, 128)
-  val arrFiveLevelsSmallChunkBuffers = groupInChunks(arrFiveLevels, 128)
+  private final val mixedNoArrSmallChunkBuffers    = groupInChunks(mixedNoArr, 128)
+  private final val arrOneLevelSmallChunkBuffers   = groupInChunks(arrOneLevel, 128)
+  private final val arrFiveLevelsSmallChunkBuffers = groupInChunks(arrFiveLevels, 128)
 
-  @Benchmark def frameOfChunkedBaseline(bh: Blackhole) = {
+  @Benchmark def frameOfChunkedBaseline(bh: Blackhole): Unit = {
     val frames = appendChunks(Iterator.empty[BitVector])
     bh.consume(frames)
   }
-  @Benchmark def frameOfChunkedShortMixedNoArr(bh: Blackhole) = {
+  @Benchmark def frameOfChunkedShortMixedNoArr(bh: Blackhole): Unit = {
     val frames = appendChunks(mixedNoArrSmallChunkBuffers)
     bh.consume(frames)
   }
-  @Benchmark def frameOfChunkedShortArrOneLevel(bh: Blackhole) = {
+  @Benchmark def frameOfChunkedShortArrOneLevel(bh: Blackhole): Unit = {
     val frames = appendChunks(arrOneLevelSmallChunkBuffers)
     bh.consume(frames)
   }
-  @Benchmark def frameOfChunkedShortArrFiveLevels(bh: Blackhole) = {
+  @Benchmark def frameOfChunkedShortArrFiveLevels(bh: Blackhole): Unit = {
     val frames = appendChunks(arrFiveLevelsSmallChunkBuffers)
     bh.consume(frames)
   }
 
-  val mixedNoArrBigChunkBuffers    = groupInChunks(mixedNoArr, 1024)
-  val arrOneLevelBigChunkBuffers   = groupInChunks(arrOneLevel, 1024)
-  val arrFiveLevelsBigChunkBuffers = groupInChunks(arrFiveLevels, 1024)
+  private final val mixedNoArrBigChunkBuffers    = groupInChunks(mixedNoArr, 1024)
+  private final val arrOneLevelBigChunkBuffers   = groupInChunks(arrOneLevel, 1024)
+  private final val arrFiveLevelsBigChunkBuffers = groupInChunks(arrFiveLevels, 1024)
 
-  @Benchmark def frameOfChunkedLongMixedNoArr(bh: Blackhole) = {
+  @Benchmark def frameOfChunkedLongMixedNoArr(bh: Blackhole): Unit = {
     val frames = appendChunks(mixedNoArrBigChunkBuffers)
     bh.consume(frames)
   }
-  @Benchmark def frameOfChunkedLongArrOneLevel(bh: Blackhole) = {
+  @Benchmark def frameOfChunkedLongArrOneLevel(bh: Blackhole): Unit = {
     val frames = appendChunks(arrOneLevelBigChunkBuffers)
     bh.consume(frames)
   }
-  @Benchmark def frameOfChunkedLongArrFiveLevels(bh: Blackhole) = {
+  @Benchmark def frameOfChunkedLongArrFiveLevels(bh: Blackhole): Unit = {
     val frames = appendChunks(arrFiveLevelsBigChunkBuffers)
     bh.consume(frames)
   }

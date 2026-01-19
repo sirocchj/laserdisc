@@ -26,7 +26,7 @@ import org.scalacheck.Prop.forAll
 
 final class ConnectionPSpec extends BaseSpec with ConnectionP {
   property("The Connection protocol using auth roundtrips successfully given non empty password") {
-    forAll { key: Key =>
+    forAll { (key: Key) =>
       val protocol = auth(key)
       assertEquals(protocol.encode, Arr(Bulk("AUTH"), Bulk(key.value)))
       assertEquals(protocol.decode(Str(OK.value)), OK)
@@ -34,7 +34,7 @@ final class ConnectionPSpec extends BaseSpec with ConnectionP {
   }
 
   property("The Connection protocol using echo roundtrips successfully given any String message") {
-    forAll { s: String =>
+    forAll { (s: String) =>
       val protocol = echo(s)
       assertEquals(protocol.encode, Arr(Bulk("ECHO"), Bulk(s)))
       assertEquals(protocol.decode(Bulk(s)), s)
@@ -42,7 +42,7 @@ final class ConnectionPSpec extends BaseSpec with ConnectionP {
   }
 
   property("The Connection protocol using echo roundtrips successfully given any Int message") {
-    forAll { i: Int =>
+    forAll { (i: Int) =>
       val protocol = echo(i)
       assertEquals(protocol.encode, Arr(Bulk("ECHO"), Bulk(i)))
       assertEquals(protocol.decode(Bulk(i)), i)
@@ -50,7 +50,7 @@ final class ConnectionPSpec extends BaseSpec with ConnectionP {
   }
 
   property("The Connection protocol using ping roundtrips successfully given any String message") {
-    forAll { s: String =>
+    forAll { (s: String) =>
       val protocol = ping(s)
       assertEquals(protocol.encode, Arr(Bulk("PING"), Bulk(s)))
       assertEquals(protocol.decode(Bulk(s)), s)
@@ -58,7 +58,7 @@ final class ConnectionPSpec extends BaseSpec with ConnectionP {
   }
 
   property("The Connection protocol using ping roundtrips successfully given any Int message") {
-    forAll { i: Int =>
+    forAll { (i: Int) =>
       val protocol = ping(i)
       assertEquals(protocol.encode, Arr(Bulk("PING"), Bulk(i)))
       assertEquals(protocol.decode(Bulk(i)), i)
@@ -78,7 +78,7 @@ final class ConnectionPSpec extends BaseSpec with ConnectionP {
   }
 
   property("The Connection protocol using select roundtrips successfully given valid DbIndexes") {
-    forAll { dbi: DbIndex =>
+    forAll { (dbi: DbIndex) =>
       val protocol = select(dbi)
       assertEquals(protocol.encode, Arr(Bulk("SELECT"), Bulk(dbi)))
       assertEquals(protocol.decode(Str(OK.value)), OK)

@@ -208,7 +208,7 @@ final class RESPFrameArrSpec extends BaseSpec with RESPFrameFixture {
         2 -> Gen.choose(1025, 4096)
       )
 
-    forAll(chunkSize) { chunkSize: Int =>
+    forAll(chunkSize) { (chunkSize: Int) =>
       val inputChunks = groupInChunks(bytesOf(arrFiveLevelsList), chunkSize)
 
       val frames = appendChunks(inputChunks).map(f => new String(f.bits.toByteArray))

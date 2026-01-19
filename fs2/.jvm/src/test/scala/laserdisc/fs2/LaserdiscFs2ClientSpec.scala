@@ -58,7 +58,7 @@ sealed abstract class LaserdiscFs2ClientSpec(p: Port, dest: String) extends Lase
   private[this] final val requestsInParallel = 500
   private[this] final val requestsInSequence = 50
 
-  override val munitTimeout = 2.minutes
+  override val munitTimeout: FiniteDuration = 2.minutes
 
   test(s"an fs2 $dest client handles correctly hundreds of read requests in parallel for a large bulk text payload") {
     val payload = List.fill(payloadSize)(text).mkString(" - ")

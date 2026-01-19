@@ -57,13 +57,13 @@ final class CirceSpec extends CirceCheckSettings with EitherTestSyntax {
   private[this] implicit val bazArbitrary: Arbitrary[Baz] = Arbitrary(bazGen)
 
   property("Circe interop roundtrips with no errors when handling a simple type") {
-    forAll { bar: Bar =>
+    forAll { (bar: Bar) =>
       assertEquals(Read[Bulk, Bar].read(Bulk(bar)), bar)
     }
   }
 
   property("Circe interop roundtrips with no errors when handling a recursive type") {
-    forAll { baz: Baz =>
+    forAll { (baz: Baz) =>
       assertEquals(Read[Bulk, Baz].read(Bulk(baz)), baz)
     }
   }

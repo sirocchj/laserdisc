@@ -79,7 +79,7 @@ object SetUpLaserdiscCats {
 
     var runtime: IORuntime = _
 
-    val resource = RedisClient[IO].to("localhost", 6379)
+    private final val resource = RedisClient[IO].to("localhost", 6379)
 
     private[fs2] var testCases: TestCasesLaserdisc[IO] = _
     private[fs2] var clientCleanUp: IO[Unit]           = _

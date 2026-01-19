@@ -23,9 +23,10 @@ package laserdisc
 package protocol
 
 import munit.ScalaCheckSuite
+import org.scalacheck.Test
 
 private[protocol] trait LawsCheckSettings extends ScalaCheckSuite {
-  override val scalaCheckTestParameters =
+  override val scalaCheckTestParameters: Test.Parameters =
     super.scalaCheckTestParameters
       .withMinSuccessfulTests(200)
       .withMaxDiscardRatio(20)

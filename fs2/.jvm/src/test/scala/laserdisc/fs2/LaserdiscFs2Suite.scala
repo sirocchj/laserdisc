@@ -32,7 +32,7 @@ import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext.fromExecutor
 
 abstract class LaserdiscFs2Suite(p: Port) extends FunSuite {
-  protected val runtime = IORuntime(
+  protected val runtime: IORuntime = IORuntime(
     compute = fromExecutor(Executors.newFixedThreadPool(16)),
     blocking = fromExecutor(Executors.newCachedThreadPool()),
     scheduler = global.scheduler,

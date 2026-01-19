@@ -93,7 +93,7 @@ final class RESPFrameMixedSpec extends RESPFrameFixture {
   }
 
   property("Appending to an empty frame a random sequence of complete messages gives MoreThanOne with all the complete items") {
-    forAll { testSet: OneOrMore[ProtocolEncoded] =>
+    forAll { (testSet: OneOrMore[ProtocolEncoded]) =>
       val vector = BitVector(testSet.value.map(_.encoded).mkString.getBytes)
 
       EmptyFrame.append(vector) onRightAll {

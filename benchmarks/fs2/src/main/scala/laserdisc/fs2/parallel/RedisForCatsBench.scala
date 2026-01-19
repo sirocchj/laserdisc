@@ -77,7 +77,7 @@ object SetUpRedisForCats {
 
     var runtime: IORuntime = _
 
-    val resource = Redis[IO].utf8("redis://localhost")
+    private final val resource = Redis[IO].utf8("redis://localhost")
 
     private[fs2] var testCases: RedisForCatsTestCases[IO] = _
     private[fs2] var clientCleanUp: IO[Unit]              = _

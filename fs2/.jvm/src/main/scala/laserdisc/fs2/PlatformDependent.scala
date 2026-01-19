@@ -24,7 +24,7 @@ package laserdisc.fs2
 import _root_.fs2.io.net.SocketOption
 
 private[fs2] object PlatformDependent {
-  final def socketOptions(receiveBufferSizeBytes: Int) = List(
+  final def socketOptions(receiveBufferSizeBytes: Int): List[SocketOption] = List(
     SocketOption.noDelay(true),
     SocketOption.receiveBufferSize(receiveBufferSizeBytes)
   )

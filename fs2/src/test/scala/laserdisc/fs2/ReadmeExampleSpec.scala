@@ -28,8 +28,8 @@ import log.effect.internal.Show
 
 final class ReadmeExampleSpec extends CatsEffectSuite {
 
-  final val logged                   = collection.mutable.ListBuffer.empty[String]
-  final val logWriter: LogWriter[IO] = new LogWriter[IO] {
+  final val logged: collection.mutable.ListBuffer[String] = collection.mutable.ListBuffer.empty[String]
+  final val logWriter: LogWriter[IO]                      = new LogWriter[IO] {
     override final def write[A: Show](level: LogLevel, a: =>A): IO[Unit] = IO(logged.append(implicitly[Show[A]].show(a))).void
   }
 

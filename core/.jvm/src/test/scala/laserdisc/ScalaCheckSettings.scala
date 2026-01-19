@@ -22,9 +22,10 @@
 package laserdisc
 
 import munit.ScalaCheckSuite
+import org.scalacheck.Test
 
 private[laserdisc] trait ScalaCheckSettings extends ScalaCheckSuite {
-  override val scalaCheckTestParameters =
+  override final val scalaCheckTestParameters: Test.Parameters =
     super.scalaCheckTestParameters
       .withMinSuccessfulTests(500)
       .withMaxDiscardRatio(20)

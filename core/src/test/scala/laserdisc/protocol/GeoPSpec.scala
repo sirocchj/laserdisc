@@ -366,7 +366,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
 
   property("The Geo protocol using georadius roundtrips successfully given key, coordinates, radius, unit, limit and store mode") {
     forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, l: PosInt, sm: GeoStoreMode) =>
-      forAll { nni: NonNegInt =>
+      forAll { (nni: NonNegInt) =>
         val protocol = georadius(k, c, r, u, l, sm)
         assertEquals(
           protocol.encode,
@@ -389,7 +389,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
 
   property("The Geo protocol using georadius roundtrips successfully given key, coordinates, radius, unit, direction and store mode") {
     forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, d: Direction, sm: GeoStoreMode) =>
-      forAll { nni: NonNegInt =>
+      forAll { (nni: NonNegInt) =>
         val protocol = georadius(k, c, r, u, d, sm)
         assertEquals(
           protocol.encode,
@@ -587,7 +587,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
 
   property("The Geo protocol using georadius roundtrips successfully given key, member, radius, unit, limit and store mode") {
     forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, l: PosInt, sm: GeoStoreMode) =>
-      forAll { nni: NonNegInt =>
+      forAll { (nni: NonNegInt) =>
         val protocol = georadius(k, m, r, u, l, sm)
         assertEquals(
           protocol.encode,

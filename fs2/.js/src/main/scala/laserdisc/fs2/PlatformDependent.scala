@@ -26,5 +26,5 @@ import _root_.fs2.io.net.SocketOption
 import scala.annotation.unused
 
 private[fs2] object PlatformDependent {
-  final def socketOptions(@unused receiveBufferSizeBytes: Int) = List(SocketOption.noDelay(true))
+  final def socketOptions(@unused receiveBufferSizeBytes: Int): List[SocketOption] = List(SocketOption.noDelay(true))
 }

@@ -36,7 +36,7 @@ private[laserdisc] trait RESPFrameFixture extends HighPriorityGenerators {
   final val longStr =
     "Very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very  very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long string"
 
-  final val mixedNoArrList = List(
+  final val mixedNoArrList: List[ProtocolEncoded] = List(
     StrEncoded(mediumStr),
     NullArrEncoded(),
     NumEncoded(21),
@@ -71,7 +71,7 @@ private[laserdisc] trait RESPFrameFixture extends HighPriorityGenerators {
     NullArrEncoded()
   )
 
-  final val arrOneLevelList = List(
+  final val arrOneLevelList: List[ProtocolEncoded] = List(
     NullArrEncoded(),
     NumEncoded(21),
     ArrEncoded(mixedNoArrList),
@@ -82,7 +82,7 @@ private[laserdisc] trait RESPFrameFixture extends HighPriorityGenerators {
     StrEncoded("PONG")
   )
 
-  final val arrTwoLevelsList = List(
+  final val arrTwoLevelsList: List[ProtocolEncoded] = List(
     NullArrEncoded(),
     NumEncoded(21),
     ArrEncoded(mixedNoArrList),
@@ -94,7 +94,7 @@ private[laserdisc] trait RESPFrameFixture extends HighPriorityGenerators {
     StrEncoded("PONG")
   )
 
-  final val arrThreeLevelsList = List(
+  final val arrThreeLevelsList: List[ProtocolEncoded] = List(
     NullArrEncoded(),
     NumEncoded(21),
     ArrEncoded(mixedNoArrList),
@@ -107,7 +107,7 @@ private[laserdisc] trait RESPFrameFixture extends HighPriorityGenerators {
     StrEncoded("PONG")
   )
 
-  final val arrFourLevelsList = List(
+  final val arrFourLevelsList: List[ProtocolEncoded] = List(
     NullArrEncoded(),
     ArrEncoded(arrThreeLevelsList),
     NumEncoded(21),
@@ -121,7 +121,7 @@ private[laserdisc] trait RESPFrameFixture extends HighPriorityGenerators {
     StrEncoded("PONG")
   )
 
-  final val arrFiveLevelsList = List(
+  final val arrFiveLevelsList: List[ProtocolEncoded] = List(
     NullArrEncoded(),
     StrEncoded("OK"),
     ArrEncoded(arrThreeLevelsList),

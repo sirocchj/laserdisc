@@ -192,7 +192,7 @@ abstract class BaseSpec
   private[laserdisc] def fails[A, B](eab: Either[A, B], a: A): Unit =
     eab.fold(e => assertEquals(e, a), res => fail(s"It Should be left but was right with $res"))
 
-  final val succeed = assert(cond = true)
+  final val succeed: Unit = assert(cond = true)
 
   protected[this] implicit final class EitherSyntax[A, B](private val eab: Either[A, B]) {
     def onRight[C](f: B => Boolean): Unit =

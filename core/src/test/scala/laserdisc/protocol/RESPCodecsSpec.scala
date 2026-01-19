@@ -29,7 +29,7 @@ import org.scalacheck.Gen._
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 import scodec.bits.BitVector
-import scodec.{Codec, Err => SErr}
+import scodec.{Attempt, Codec, Err => SErr}
 
 object RESPCodecsSpec {
   private[this] final object functions {
@@ -37,9 +37,9 @@ object RESPCodecsSpec {
     private[this] final val requireEncode = (resp: RESP) => Codec[RESP].encode(resp).require
     private[this] final val stringToBytes = (s: String) => s.getBytes(UTF_8)
 
-    final val stringToBytesLength = stringToBytes andThen (bytes => bytes.length)
+    final val stringToBytesLength: String => Int = stringToBytes andThen (bytes => bytes.length)
 
-    final val stringToRESPAttempt = {
+    final val stringToRESPAttempt: String => Attempt[RESP] = {
       val bitVectorFromString = (s: String) => BitVector(stringToBytes(s))
       bitVectorFromString andThen attemptDecode
     }
@@ -49,9 +49,9 @@ object RESPCodecsSpec {
       requireEncode andThen stringify
     }
 
-    final val respSeqToString = (xs: Seq[RESP]) => xs.map(respToString).mkString
+    final val respSeqToString: Seq[RESP] => String = (xs: Seq[RESP]) => xs.map(respToString).mkString
 
-    final val roundTripAttempt = requireEncode andThen attemptDecode
+    final val roundTripAttempt: RESP => Attempt[RESP] = requireEncode andThen attemptDecode
   }
 
   private implicit final class RichChar(private val underlying: Char) extends AnyVal {
@@ -112,7 +112,7 @@ final class RESPCodecsSpec extends BaseSpec {
   private[this] implicit val respListArb: Arbitrary[List[RESP]]  = Arbitrary(respListGen)
 
   property("A RESP codec handling unknown protocol type fails with correct error message") {
-    forAll { c: Char =>
+    forAll { (c: Char) =>
       assertLeftEquals(
         s"$c".RESP leftMap (_.messageWithContext),
         s"unidentified RESP type (Hex: ${c.toHex})"
@@ -121,39 +121,39 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling simple strings decodes them correctly") {
-    forAll { s: String => assertEquals(s"+$s$CRLF".RESP, Str(s)) }
+    forAll { (s: String) => assertEquals(s"+$s$CRLF".RESP, Str(s)) }
   }
 
   property("A RESP codec handling simple strings decodes them correctly") {
-    forAll { s: Str => assertEquals(s.wireFormat, s"+${s.value}$CRLF") }
+    forAll { (s: Str) => assertEquals(s.wireFormat, s"+${s.value}$CRLF") }
   }
 
   property("A RESP codec handling simple strings roundtrips with no errors") {
-    forAll { s: Str => assertEquals(s.roundTrip, s) }
+    forAll { (s: Str) => assertEquals(s.roundTrip, s) }
   }
 
   property("A RESP codec handling errors decodes them correctly") {
-    forAll { s: String => assertEquals(s"-$s$CRLF".RESP, Err(s)) }
+    forAll { (s: String) => assertEquals(s"-$s$CRLF".RESP, Err(s)) }
   }
 
   property("A RESP codec handling errors encodes them correctly") {
-    forAll { e: Err => assertEquals(e.wireFormat, s"-${e.message}$CRLF") }
+    forAll { (e: Err) => assertEquals(e.wireFormat, s"-${e.message}$CRLF") }
   }
 
   property("A RESP codec handling errors roundtrips with no errors") {
-    forAll { e: Err => assertEquals(e.roundTrip, e) }
+    forAll { (e: Err) => assertEquals(e.roundTrip, e) }
   }
 
   property("A RESP codec handling integers decodes them correctly") {
-    forAll { l: Long => assertEquals(s":$l$CRLF".RESP, Num(l)) }
+    forAll { (l: Long) => assertEquals(s":$l$CRLF".RESP, Num(l)) }
   }
 
   property("A RESP codec handling integers encodes them correctly") {
-    forAll { n: Num => assertEquals(n.wireFormat, s":${n.value}$CRLF") }
+    forAll { (n: Num) => assertEquals(n.wireFormat, s":${n.value}$CRLF") }
   }
 
   property("A RESP codec handling integers roundtrips with no errors") {
-    forAll { n: Num => assertEquals(n.roundTrip, n) }
+    forAll { (n: Num) => assertEquals(n.roundTrip, n) }
   }
 
   property("A RESP codec handling bulk strings fails with correct error message when decoding size < -1") {
@@ -164,7 +164,7 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling bulk strings decodes them correctly") {
-    forAll { os: Option[String] =>
+    forAll { (os: Option[String]) =>
       os match {
         case None    => assertEquals(s"$$-1$CRLF".RESP, NullBulk)
         case Some(s) => assertEquals(s"$$${s.bytesLength}$CRLF$s$CRLF".RESP, Bulk(s))
@@ -173,7 +173,7 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling bulk strings encodes them correctly") {
-    forAll { b: GenBulk =>
+    forAll { (b: GenBulk) =>
       b match {
         case NullBulk => assertEquals(b.wireFormat, s"$$-1$CRLF")
         case Bulk(bs) => assertEquals(b.wireFormat, s"$$${bs.bytesLength}$CRLF$bs$CRLF")
@@ -182,7 +182,7 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling bulk strings roundtrips with no errors") {
-    forAll { b: GenBulk => assertEquals(b.roundTrip, b) }
+    forAll { (b: GenBulk) => assertEquals(b.roundTrip, b) }
   }
 
   property("A RESP codec handling arrays fails with correct error message when decoding size < -1") {
@@ -193,7 +193,7 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling bulk strings decodes them correctly") {
-    forAll { ors: Option[List[RESP]] =>
+    forAll { (ors: Option[List[RESP]]) =>
       ors match {
         case None     => assertEquals(s"*-1$CRLF".RESP, NilArr)
         case Some(xs) => assertEquals(s"*${xs.length}$CRLF${xs.wireFormat}".RESP, Arr(xs))
@@ -202,7 +202,7 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling bulk strings encodes them correctly") {
-    forAll { a: GenArr =>
+    forAll { (a: GenArr) =>
       a match {
         case NilArr  => assertEquals(a.wireFormat, s"*-1$CRLF")
         case Arr(xs) => assertEquals(a.wireFormat, s"*${xs.length}$CRLF${xs.wireFormat}")
@@ -211,6 +211,6 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling bulk strings roundtrips with no errors") {
-    forAll { a: GenArr => assertEquals(a.roundTrip, a) }
+    forAll { (a: GenArr) => assertEquals(a.roundTrip, a) }
   }
 }
