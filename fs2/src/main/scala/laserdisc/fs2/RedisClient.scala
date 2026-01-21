@@ -28,7 +28,6 @@ import cats.effect.{Async, Concurrent, Fiber, Resource, Sync}
 import cats.syntax.all._
 import log.effect.fs2.LogSelector
 import log.effect.fs2.syntax._
-import shapeless.HList
 
 import scala.concurrent.duration._
 
@@ -67,7 +66,7 @@ object RedisClient {
     sealed trait Connection[F[_]] {
       def run: F[Fiber[F, Throwable, Unit]]
       def shutdown: F[Unit]
-      def send[In <: HList, Out <: HList](
+      def send[In <: Tuple, Out <: Tuple](
           in: In,
           timeout: FiniteDuration
       )(implicit handler: RedisHandler.Aux[F, In, Out]): F[Out]
@@ -76,7 +75,7 @@ object RedisClient {
     sealed trait Publisher[F[_]] {
       def start: F[Connection[F]]
       def shutdown: F[Unit]
-      def publish[In <: HList, Out <: HList](
+      def publish[In <: Tuple, Out <: Tuple](
           in: In,
           timeout: FiniteDuration
       )(implicit handler: RedisHandler.Aux[F, In, Out]): F[Out]
@@ -85,7 +84,7 @@ object RedisClient {
     def mkClient[F[_]: Concurrent](establishedConn: Connection[F]): Resource[F, RedisClient[F]] =
       Resource.make(mkPublisher(establishedConn) >>= (publ => publ.start.map(_ => publ)))(_.shutdown) map { publisher =>
         new RedisClient[F] {
-          override final def send[In <: HList, Out <: HList](in: In, timeout: FiniteDuration)(
+          override final def send[In <: Tuple, Out <: Tuple](in: In, timeout: FiniteDuration)(
               implicit handler: RedisHandler.Aux[F, In, Out]
           ): F[Out] = publisher.publish(in, timeout)
         }
@@ -191,7 +190,7 @@ object RedisClient {
                   termSignal.complete(().asRight) >>
                   log.debug("Shutdown complete")
 
-              override final def send[In <: HList, Out <: HList](
+              override final def send[In <: Tuple, Out <: Tuple](
                   in: In,
                   timeout: FiniteDuration
               )(implicit handler: RedisHandler.Aux[F, In, Out]): F[Out] =
@@ -233,7 +232,7 @@ object RedisClient {
           val shutdown: F[Unit] =
             state.set(State.ShutDownState)
 
-          def publish[In <: HList, Out <: HList](in: In, timeout: FiniteDuration)(
+          def publish[In <: Tuple, Out <: Tuple](in: In, timeout: FiniteDuration)(
               implicit ev: RedisHandler.Aux[F, In, Out]
           ): F[Out] = {
             import State._

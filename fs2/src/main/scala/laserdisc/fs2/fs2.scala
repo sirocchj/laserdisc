@@ -22,7 +22,6 @@
 package laserdisc
 
 import cats.sequence.Sequencer
-import shapeless.HList
 import shapeless.ops.hlist.{Mapper, ZipConst}
 
 import scala.concurrent.duration.FiniteDuration
@@ -41,18 +40,18 @@ package object fs2 {
 
   final type Env[F[_]]                       = (Queue[F], FiniteDuration)
   final type RedisClient[F[_]]               = Client[F, Env[F]]
-  final type RedisHandler[F[_], In <: HList] = Handler[F, Env[F], In]
+  final type RedisHandler[F[_], In <: Tuple] = Handler[F, Env[F], In]
 
   object RedisHandler {
-    type Aux[F[_], In <: HList, LOut0 <: HList] = RedisHandler[F, In] { type LOut = LOut0 }
+    type Aux[F[_], In <: Tuple, LOut0 <: Tuple] = RedisHandler[F, In] { type LOut = LOut0 }
   }
 
   implicit final def derive[
       F[_],
-      In <: HList,
-      InEnvL <: HList,
-      FuncL <: HList,
-      LOut0 <: HList
+      In <: Tuple,
+      InEnvL <: Tuple,
+      FuncL <: Tuple,
+      LOut0 <: Tuple
   ](
       implicit zc: ZipConst.Aux[Env[F], In, InEnvL],
       ma: Mapper.Aux[PromiseMapper.type, InEnvL, FuncL],

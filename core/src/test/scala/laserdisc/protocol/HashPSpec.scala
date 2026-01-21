@@ -25,8 +25,6 @@ package protocol
 import org.scalacheck.Prop.forAll
 
 abstract class HashPSpec extends BaseSpec with HashP {
-  import shapeless._
-
   private[this] final val scanKVToArr: ScanKV => Arr = scanKV =>
     Arr(
       Bulk(scanKV.cursor.value),
@@ -123,11 +121,11 @@ abstract class HashPSpec extends BaseSpec with HashP {
     }
   }
 
-  property("The Hash protocol using hgetall roundtrips successfully given key and specific read instance (Key :: String :: HNil)") {
+  property("The Hash protocol using hgetall roundtrips successfully given key and specific read instance (Key *: String *: EmptyTuple)") {
     forAll { (k: Key, f: Key, v: String) =>
-      val protocol = hgetall[Key :: String :: HNil](k)
+      val protocol = hgetall[Key *: String *: EmptyTuple](k)
       assertEquals(protocol.encode, Arr(Bulk("HGETALL"), Bulk(k)))
-      assertEquals(protocol.decode(Arr(Bulk(f), Bulk(v))), f :: v :: HNil)
+      assertEquals(protocol.decode(Arr(Bulk(f), Bulk(v))), f *: v *: EmptyTuple)
     }
   }
 
@@ -179,26 +177,26 @@ abstract class HashPSpec extends BaseSpec with HashP {
     }
   }
 
-  test("The Hash protocol using hmset fails to compile given key and HNil") {
+  test("The Hash protocol using hmset fails to compile given key and EmptyTuple") {
     assertNoDiff(
-      compileErrors("""hmset(Key("a"), HNil)"""),
+      compileErrors("""hmset(Key("a"), EmptyTuple)"""),
       """|error:
-         |Implicit not found RESPParamWrite[shapeless.HNil.type].
+         |Implicit not found RESPParamWrite[EmptyTuple.type].
          |
          |Normally you would not need to define one manually, as one will be derived for you automatically iff:
-         |- an instance of Show[shapeless.HNil.type] is in scope
-         |- shapeless.HNil.type is a List whose LUB has a RESPParamWrite instance defined
-         |- shapeless.HNil.type is an HList whose elements all have a RESPParamWrite instance defined
+         |- an instance of Show[EmptyTuple.type] is in scope
+         |- EmptyTuple.type is a List whose LUB has a RESPParamWrite instance defined
+         |- EmptyTuple.type is a Tuple whose elements all have a RESPParamWrite instance defined
          |
-         |hmset(Key("a"), HNil)
+         |hmset(Key("a"), EmptyTuple)
          |     ^
          |""".stripMargin
     )
   }
 
-  property("The Hash protocol using hmset roundtrips successfully given key and HList of (Key, A) pairs") {
+  property("The Hash protocol using hmset roundtrips successfully given key and Tuple of (Key, A) pairs") {
     forAll { (k: Key, f1: Key, i: Int, f2: Key, s: String) =>
-      val protocol = hmset(k, (f1 -> i) :: (f2 -> s) :: HNil)
+      val protocol = hmset(k, (f1 -> i) *: (f2 -> s) *: EmptyTuple)
       assertEquals(protocol.encode, Arr(Bulk("HMSET"), Bulk(k), Bulk(f1), Bulk(i), Bulk(f2), Bulk(s)))
       assertEquals(protocol.decode(Str(OK.value)), OK)
     }
@@ -270,17 +268,17 @@ abstract class HashPSpec extends BaseSpec with HashP {
 
   property("The Hash protocol using hvals roundtrips successfully given key (expecting one field)") {
     forAll { (k: Key, i: Int) =>
-      val protocol = hvals[Int :: HNil](k)
+      val protocol = hvals[Int *: EmptyTuple](k)
       assertEquals(protocol.encode, Arr(Bulk("HVALS"), Bulk(k)))
-      assertEquals(protocol.decode(Arr(Bulk(i))), i :: HNil)
+      assertEquals(protocol.decode(Arr(Bulk(i))), i *: EmptyTuple)
     }
   }
 
   property("The Hash protocol using hvals roundtrips successfully given key (expecting two fields)") {
     forAll { (k: Key, i: Int, s: String) =>
-      val protocol = hvals[Int :: String :: HNil](k)
+      val protocol = hvals[Int *: String *: EmptyTuple](k)
       assertEquals(protocol.encode, Arr(Bulk("HVALS"), Bulk(k)))
-      assertEquals(protocol.decode(Arr(Bulk(i), Bulk(s))), i :: s :: HNil)
+      assertEquals(protocol.decode(Arr(Bulk(i), Bulk(s))), i *: s *: EmptyTuple)
     }
   }
 }

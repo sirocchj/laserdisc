@@ -36,8 +36,6 @@ object ListP {
 }
 
 trait ListBaseP {
-  import shapeless._
-
   object listtypes {
     final type ListPosition = ListP.Position
 
@@ -50,29 +48,29 @@ trait ListBaseP {
   private[this] final val zeroIsNone     = RESPRead.instance(Read.numZeroIsNone[PosInt])
 
   final def lindex[A: Bulk ==> *](key: Key, index: Index): Protocol.Aux[Option[A]] =
-    Protocol("LINDEX", key :: index :: HNil).opt[GenBulk].as[A]
+    Protocol("LINDEX", key *: index *: EmptyTuple).opt[GenBulk].as[A]
 
   final def linsert[A: Show](key: Key, position: ListPosition, pivot: A, value: A): Protocol.Aux[Option[PosInt]] =
-    Protocol("LINSERT", key :: position :: pivot :: value :: HNil).using(minusOneIsNone)
+    Protocol("LINSERT", key *: position *: pivot *: value *: EmptyTuple).using(minusOneIsNone)
 
   final def llen(key: Key): Protocol.Aux[NonNegInt] = Protocol("LLEN", key).as[Num, NonNegInt]
 
   final def lpop[A: Bulk ==> *](key: Key): Protocol.Aux[Option[A]] = Protocol("LPOP", key).opt[GenBulk].as[A]
 
   final def lpush[A: Show](key: Key, values: OneOrMore[A]): Protocol.Aux[PosInt] =
-    Protocol("LPUSH", key :: values.value :: HNil).as[Num, PosInt]
+    Protocol("LPUSH", key *: values.value *: EmptyTuple).as[Num, PosInt]
 
-  final def lpushx[A: Show](key: Key, value: A): Protocol.Aux[Option[PosInt]] = Protocol("LPUSHX", key :: value :: HNil).using(zeroIsNone)
+  final def lpushx[A: Show](key: Key, value: A): Protocol.Aux[Option[PosInt]] = Protocol("LPUSHX", key *: value *: EmptyTuple).using(zeroIsNone)
 
   final def lrange[A: Bulk ==> *](key: Key, start: Index, end: Index): Protocol.Aux[Seq[A]] =
-    Protocol("LRANGE", key :: start :: end :: HNil).as[Arr, Seq[A]]
+    Protocol("LRANGE", key *: start *: end *: EmptyTuple).as[Arr, Seq[A]]
 
   final def lrem[A: Show](key: Key, count: Index, value: A): Protocol.Aux[NonNegInt] =
-    Protocol("LREM", key :: count :: value :: HNil).as[Num, NonNegInt]
+    Protocol("LREM", key *: count *: value *: EmptyTuple).as[Num, NonNegInt]
 
-  final def lset[A: Show](key: Key, index: Index, value: A): Protocol.Aux[OK] = Protocol("LSET", key :: index :: value :: HNil).as[Str, OK]
+  final def lset[A: Show](key: Key, index: Index, value: A): Protocol.Aux[OK] = Protocol("LSET", key *: index *: value *: EmptyTuple).as[Str, OK]
 
-  final def ltrim(key: Key, start: Index, stop: Index): Protocol.Aux[OK] = Protocol("LTRIM", key :: start :: stop :: HNil).as[Str, OK]
+  final def ltrim(key: Key, start: Index, stop: Index): Protocol.Aux[OK] = Protocol("LTRIM", key *: start *: stop *: EmptyTuple).as[Str, OK]
 
   final def rpop[A: Bulk ==> *](key: Key): Protocol.Aux[Option[A]] = Protocol("RPOP", key).opt[GenBulk].as[A]
 
@@ -80,9 +78,9 @@ trait ListBaseP {
     Protocol("RPOPLPUSH", source :: destination :: Nil).opt[GenBulk].as[A]
 
   final def rpush[A: Show](key: Key, values: OneOrMore[A]): Protocol.Aux[PosInt] =
-    Protocol("RPUSH", key :: values.value :: HNil).as[Num, PosInt]
+    Protocol("RPUSH", key *: values.value *: EmptyTuple).as[Num, PosInt]
 
-  final def rpushx[A: Show](key: Key, value: A): Protocol.Aux[Option[PosInt]] = Protocol("RPUSHX", key :: value :: HNil).using(zeroIsNone)
+  final def rpushx[A: Show](key: Key, value: A): Protocol.Aux[Option[PosInt]] = Protocol("RPUSHX", key *: value *: EmptyTuple).using(zeroIsNone)
 }
 
 trait ListP extends ListBaseP with ListExtP

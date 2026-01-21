@@ -3,15 +3,14 @@ package protocol
 
 import org.openjdk.jmh.annotations.{Benchmark, Scope, State}
 import org.openjdk.jmh.infra.Blackhole
-import shapeless._
 
 @State(Scope.Benchmark)
 class ProtocolBenchArr {
-  private final def protocol         = Protocol("CUSTOM", _: String :: HNil).as[Arr, Seq[Long]]
-  private final def protocolWithNull = Protocol("CUSTOM", _: String :: HNil).as[Arr, Seq[Option[Long]]]
-  private final def protocolPairs    = Protocol("CUSTOM", _: String :: HNil).as[Arr, Seq[(String, Long)]]
+  private final def protocol         = Protocol("CUSTOM", _: String *: EmptyTuple).as[Arr, Seq[Long]]
+  private final def protocolWithNull = Protocol("CUSTOM", _: String *: EmptyTuple).as[Arr, Seq[Option[Long]]]
+  private final def protocolPairs    = Protocol("CUSTOM", _: String *: EmptyTuple).as[Arr, Seq[(String, Long)]]
 
-  private final val request = "id" :: HNil
+  private final val request = "id" *: EmptyTuple
 
   private final val response1 = Arr(Bulk("1"), Bulk("2"), Bulk("3"), Bulk("4"), Bulk("5"), Bulk("6"), Bulk("7"), Bulk("8"), Bulk("9"), Bulk("10"), Bulk("11"), Bulk("12"), Bulk("13"), Bulk("14"), Bulk("15"), Bulk("16"), Bulk("17"), Bulk("18"), Bulk("19"), Bulk("20"), Bulk("1"), Bulk("2"), Bulk("3"), Bulk("4"), Bulk("5"), Bulk("6"), Bulk("7"), Bulk("8"), Bulk("9"), Bulk("10"), Bulk("11"), Bulk("12"), Bulk("13"), Bulk("14"), Bulk("15"), Bulk("16"), Bulk("17"), Bulk("18"), Bulk("19"), Bulk("20"))
   private final val response2 = Arr(Bulk("1"), NullBulk, Bulk("3"), NullBulk, Bulk("5"), Bulk("6"), NullBulk, NullBulk, Bulk("9"), NullBulk, Bulk("11"), Bulk("12"), NullBulk, Bulk("14"), NullBulk, Bulk("16"), Bulk("17"), Bulk("18"), NullBulk, Bulk("20"), Bulk("1"), NullBulk, Bulk("3"), NullBulk, Bulk("5"), Bulk("6"), NullBulk, NullBulk, Bulk("9"), NullBulk, Bulk("11"), Bulk("12"), NullBulk, Bulk("14"), NullBulk, Bulk("16"), Bulk("17"), Bulk("18"), NullBulk, Bulk("20"))

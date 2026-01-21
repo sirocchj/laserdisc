@@ -53,7 +53,7 @@ ThisBuild / organizationName           := "LaserDisc"
 ThisBuild / licenses                   := Seq(License.MIT)
 ThisBuild / startYear                  := Some(2018)
 ThisBuild / developers                 := List(tlGitHubDev("sirocchj", "Julien Sirocchi"), tlGitHubDev("barambani", "Filippo Mariotti"))
-ThisBuild / crossScalaVersions         := Seq(scala_212, scala_213)
+ThisBuild / crossScalaVersions         := Seq(scala_212, scala_213, scala_3)
 ThisBuild / scalaVersion               := scala_213
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"), JavaSpec.temurin("21"))
 
@@ -138,7 +138,6 @@ lazy val core = laserdiscCrossModule("core")
       |import laserdisc._
       |import laserdisc.auto._
       |import laserdisc.all._
-      |import shapeless._
       |""".stripMargin
   )
 
@@ -224,17 +223,17 @@ lazy val `core-bench` = project
   .dependsOn(core.jvm % "compile->test;compile->compile")
   .enablePlugins(JmhPlugin, NoPublishPlugin)
 
-lazy val `fs2-bench` = project
-  .in(file("benchmarks/fs2"))
-  .dependsOn(fs2.jvm)
-  .enablePlugins(JmhPlugin, NoPublishPlugin)
-  .settings(
-    libraryDependencies ++= Seq(
-      "ch.qos.logback"      % "logback-classic"    % V.logback,
-      "com.github.scredis" %% "scredis"            % V.scredis,
-      "dev.profunktor"     %% "redis4cats-effects" % V.redis4Cats,
-      "net.debasishg"      %% "redisclient"        % V.`scala-redis`,
-      "org.slf4j"           % "slf4j-api"          % V.slf4j,
-      "redis.clients"       % "jedis"              % V.jedis
-    )
-  )
+// lazy val `fs2-bench` = project
+//   .in(file("benchmarks/fs2"))
+//   .dependsOn(fs2.jvm)
+//   .enablePlugins(JmhPlugin, NoPublishPlugin)
+//   .settings(
+//     libraryDependencies ++= Seq(
+//       "ch.qos.logback"      % "logback-classic"    % V.logback,
+//       "com.github.scredis" %% "scredis"            % V.scredis,
+//       "dev.profunktor"     %% "redis4cats-effects" % V.redis4Cats,
+//       "net.debasishg"      %% "redisclient"        % V.`scala-redis`,
+//       "org.slf4j"           % "slf4j-api"          % V.slf4j,
+//       "redis.clients"       % "jedis"              % V.jedis
+//     )
+//   )

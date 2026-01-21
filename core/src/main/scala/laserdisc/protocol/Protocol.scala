@@ -22,7 +22,7 @@
 package laserdisc
 package protocol
 
-import shapeless._
+import shapeless.{:+:, CNil, Coproduct, Generic}
 
 import scala.annotation.nowarn
 

@@ -22,7 +22,7 @@
 package laserdisc
 package protocol
 
-import shapeless._
+import shapeless.Witness
 import shapeless.labelled.FieldType
 
 import scala.annotation.implicitNotFound
@@ -33,7 +33,7 @@ import scala.annotation.implicitNotFound
 Normally you would not need to define one manually, as one will be derived for you automatically iff:
 - an instance of Show[${A}] is in scope
 - ${A} is a List whose LUB has a RESPParamWrite instance defined
-- ${A} is an HList whose elements all have a RESPParamWrite instance defined
+- ${A} is a Tuple whose elements all have a RESPParamWrite instance defined
 """
 ) trait RESPParamWrite[A] {
   def write(a: A): Seq[GenBulk]
@@ -66,14 +66,14 @@ private[protocol] sealed trait RESPParamWriteInstances extends RESPParamWriteIns
 }
 
 private[protocol] sealed trait RESPParamWriteInstances1 {
-  implicit final val nilRESPParamWrite: RESPParamWrite[Nil.type] = RESPParamWrite.const(Seq.empty)
-  implicit final val hNilRESPParamWrite: RESPParamWrite[HNil]    = RESPParamWrite.const(Seq.empty)
+  implicit final val nilRESPParamWrite: RESPParamWrite[Nil.type]          = RESPParamWrite.const(Seq.empty)
+  implicit final val emptyTupleRESPParamWrite: RESPParamWrite[EmptyTuple] = RESPParamWrite.const(Seq.empty)
 
-  implicit final def hConsRESPParamWrite[H, T <: HList](
+  implicit final def tupleRESPParamWrite[H, T <: Tuple](
       implicit H: RESPParamWrite[H],
       T: RESPParamWrite[T]
-  ): RESPParamWrite[H :: T] =
-    RESPParamWrite.instance { case h :: t =>
+  ): RESPParamWrite[H *: T] =
+    RESPParamWrite.instance { case h *: t =>
       H.write(h) ++: T.write(t)
     }
 }

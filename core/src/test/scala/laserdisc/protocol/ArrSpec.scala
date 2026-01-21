@@ -22,12 +22,10 @@
 package laserdisc
 package protocol
 
-import shapeless._
-
 final class ArrSpec extends BaseSpec with EitherSyntax {
   test("decoding the correct type Arr(Bulk) ==> Seq[A] with the wrong encoding gives details about the decoding error") {
-    def protocol = Protocol("CUSTOM", _: String :: HNil).as[Arr, Seq[Long]]
-    val request  = "id" :: HNil
+    def protocol = Protocol("CUSTOM", _: String *: EmptyTuple).as[Arr, Seq[Long]]
+    val request  = "id" *: EmptyTuple
     val response = Arr(Num(1L), Num(2L), Num(3L), Num(4L))
 
     assertLeftEquals(
@@ -37,8 +35,8 @@ final class ArrSpec extends BaseSpec with EitherSyntax {
   }
 
   test("decoding the correct type Arr(Bulk) ==> Seq[Option[A]] with the wrong encoding gives details about the decoding error") {
-    def protocol = Protocol("CUSTOM", _: String :: HNil).as[Arr, Seq[Option[Long]]]
-    val request  = "id" :: HNil
+    def protocol = Protocol("CUSTOM", _: String *: EmptyTuple).as[Arr, Seq[Option[Long]]]
+    val request  = "id" *: EmptyTuple
     val response = Arr(Num(1L), NullBulk, Num(3L), NullBulk)
 
     assertLeftEquals(

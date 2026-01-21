@@ -22,7 +22,7 @@
 package laserdisc
 package protocol
 
-import shapeless._
+import shapeless.{:+:, CNil, Coproduct, Inl, Inr, Witness}
 import shapeless.labelled._
 
 import scala.annotation.implicitNotFound
@@ -242,24 +242,24 @@ trait ReadInstances1 extends EitherSyntax with ReadInstances2 {
   implicit final val arr2TimeRead: Read[Arr, Time] = instancePF("Arr(Time)") {
     case Arr(Bulk(ToLong(NonNegLong(ts))) +: Bulk(ToLong(NonNegLong(em))) +: Seq()) => Time(ts, em)
   }
-  implicit final def arr2LabelledHCons[HK <: Symbol, HV, T <: HList](
+  implicit final def arr2LabelledTuple[HK <: Symbol, HV, T <: Tuple](
       implicit HK: Witness.Aux[HK],
       RHV: Read[Bulk, HV],
       RT: Read[Arr, T]
-  ): Read[Arr, FieldType[HK, HV] :: T] =
+  ): Read[Arr, FieldType[HK, HV] *: T] =
     instance {
       case Arr(Bulk(HK.value.`name`) +: RHV(Right(hv)) +: rest) => RT.read(Arr(rest)).map(t => field[HK](hv) :: t)
       case Arr(other)                                           => Left(RESPDecErr(s"Read Error: expected `[K, V] :: T` but was $other"))
     }
-  implicit final def arr2HCons[H: <:!<[*, FieldType[_, _]], T <: HList](
+  implicit final def arr2Tuple[H: <:!<[*, FieldType[_, _]], T <: Tuple](
       implicit RH: Read[Bulk, H],
       RT: Read[Arr, T]
-  ): Read[Arr, H :: T] =
+  ): Read[Arr, H *: T] =
     instance {
       case Arr(RH(Right(h)) +: rest) => RT.read(Arr(rest)).map(h :: _)
       case Arr(other)                => Left(RESPDecErr(s"Read Error: expected `H :: T` but was $other"))
     }
-  implicit final val arr2HNil: Read[Arr, HNil] = instancePF("Arr(Seq())") { case Arr(Seq()) => HNil }
+  implicit final val arr2EmptyTuple: Read[Arr, EmptyTuple] = instancePF("Arr(Seq())") { case Arr(Seq()) => EmptyTuple }
 }
 
 sealed trait ReadInstances2 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025 LaserDisc
+ * Copyright (c) 2018-2026 LaserDisc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -187,9 +187,9 @@ object TwoOrMoreWeightedKeys extends RefinedTypeOps[TwoOrMoreWeightedKeys, List[
 object ValidDouble           extends RefinedTypeOps.Numeric[ValidDouble, Double]
 
 final val LoopbackHost: Host = Host.unsafeFrom(LoopbackEqWit)
-final val NOKEY: NOKEY       = RefType.applyRefM[NOKEY]("NOKEY")
-final val OK: OK             = RefType.applyRefM[OK]("OK")
-final val PONG: PONG         = RefType.applyRefM[PONG]("PONG")
+final val NOKEY: NOKEY       = RefType.applyRef[NOKEY]("NOKEY").getOrElse(absurd)
+final val OK: OK             = RefType.applyRef[OK]("OK").getOrElse(absurd)
+final val PONG: PONG         = RefType.applyRef[PONG]("PONG").getOrElse(absurd)
 
 private[laserdisc] final val COMMA_CH = ','
 private[laserdisc] final val LF_CH    = '\n'
@@ -217,6 +217,17 @@ private[laserdisc] object ToDouble {
     try Some(j.Double.parseDouble(s))
     catch { case _: NumberFormatException => None }
 }
+
+private[laserdisc] sealed trait =:!=[A, B] extends Serializable
+private[laserdisc] implicit def neq[A, B]: A =:!= B    = new =:!=[A, B] {}
+private[laserdisc] implicit def neqAmbig1[A]: A =:!= A = absurd
+private[laserdisc] implicit def neqAmbig2[A]: A =:!= A = absurd
+
+@implicitNotFound("${A} must not be a subtype of ${B}")
+private[laserdisc] sealed trait <:!<[A, B] extends Serializable
+private[laserdisc] implicit def nsub[A, B]: A <:!< B            = new <:!<[A, B] {}
+private[laserdisc] implicit def nsubAmbig1[A, B >: A]: A <:!< B = absurd
+private[laserdisc] implicit def nsubAmbig2[A, B >: A]: A <:!< B = absurd
 
 private[laserdisc] implicit final class WidenOps1[F[_], A](private val fa: F[A]) extends AnyVal {
   def widen[AA: <:<[A, *]: =:!=[A, *]]: F[AA] = fa.asInstanceOf[F[AA]]

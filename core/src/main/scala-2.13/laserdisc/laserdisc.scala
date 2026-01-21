@@ -30,11 +30,22 @@ import eu.timepit.refined.generic.Equal
 import eu.timepit.refined.numeric.{Interval, NonNaN, NonNegative, Positive}
 import eu.timepit.refined.string.{IPv4, MatchesRegex}
 import eu.timepit.refined.types.net.PrivateNetworks._
-import shapeless._
 
-import scala.annotation.nowarn
+import scala.annotation.{implicitNotFound, nowarn}
 
 package object laserdisc {
+  type Tuple = shapeless.HList
+
+  type EmptyTuple = shapeless.HNil
+  @inline final val EmptyTuple: EmptyTuple = shapeless.HNil
+
+  type *:[+A, +B <: Tuple] = shapeless.::[A, B]
+  @inline final val *: = shapeless.::
+
+  implicit final class TupleOps[T <: Tuple](val t: T) extends AnyVal {
+    @inline def *:[H](h: H): H *: T = shapeless.::(h, t)
+  }
+
   // Basic type aliases
   final type |[+A, +B] = Either[A, B]
   final type Maybe[A]  = Throwable | A
@@ -98,13 +109,9 @@ package object laserdisc {
   final type DbIndexRef        = Interval.Closed[W.`0`.T, DbIndexMaxValueWit.T]
   final type GeoHashRef        = MatchesRegex[GeoHashRegexWit.T]
   final type GlobPatternRef    = MatchesRegex[GlobPatternRegexWit.T]
-  final type HostRef           = Equal[AllNICsEqWit.T] Or
-    Equal[LoopbackEqWit.T] Or
-    (Not[IPv4] And MaxSize[Rfc1123HostnameMaxLengthWit.T] And MatchesRegex[Rfc1123HostnameRegexWit.T]) Or
-    Rfc1918PrivateSpec Or
-    Rfc5737TestnetSpec Or
-    Rfc3927LocalLinkSpec Or
-    Rfc2544BenchmarkSpec
+  final type HostRef           = Equal[AllNICsEqWit.T] Or Equal[LoopbackEqWit.T] Or
+    (Not[IPv4] And MaxSize[Rfc1123HostnameMaxLengthWit.T] And MatchesRegex[Rfc1123HostnameRegexWit.T]) Or Rfc1918PrivateSpec Or
+    Rfc5737TestnetSpec Or Rfc3927LocalLinkSpec Or Rfc2544BenchmarkSpec
   final type IndexRef         = True
   final type KeyRef           = OneOrMoreRef And Forall[NoControlChar]
   final type LatitudeRef      = Interval.Closed[LatitudeMinValueWit.T, LatitudeMaxValueWit.T]
@@ -224,6 +231,18 @@ package object laserdisc {
       try Some(j.Double.parseDouble(s))
       catch { case _: NumberFormatException => None }
   }
+
+  @nowarn private[laserdisc] sealed trait =:!=[A, B] extends Serializable
+  private[laserdisc] implicit def neq[A, B]: A =:!= B    = new =:!=[A, B] {}
+  private[laserdisc] implicit def neqAmbig1[A]: A =:!= A = absurd
+  private[laserdisc] implicit def neqAmbig2[A]: A =:!= A = absurd
+
+  @implicitNotFound("${A} must not be a subtype of ${B}")
+  @nowarn private[laserdisc] sealed trait <:!<[A, B] extends Serializable
+
+  private[laserdisc] implicit def nsub[A, B]: A <:!< B            = new <:!<[A, B] {}
+  private[laserdisc] implicit def nsubAmbig1[A, B >: A]: A <:!< B = absurd
+  private[laserdisc] implicit def nsubAmbig2[A, B >: A]: A <:!< B = absurd
 
   private[laserdisc] implicit final class WidenOps1[F[_], A](private val fa: F[A]) extends AnyVal {
     def widen[AA: <:<[A, *]: =:!=[A, *]]: F[AA] = fa.asInstanceOf[F[AA]]

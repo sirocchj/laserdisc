@@ -195,7 +195,6 @@ object ServerP {
 
 trait ServerP {
   import ServerP.{Configuration, ConnectedClients, Info, InfoSection, Role, ShutdownFlag}
-  import shapeless._
 
   object servers {
     final val info = InfoSection
@@ -217,7 +216,7 @@ trait ServerP {
 
     val list: Protocol.Aux[ConnectedClients] = Protocol("CLIENT", "LIST").as[Bulk, ConnectedClients]
 
-    def pause(milliseconds: PosLong): Protocol.Aux[OK] = Protocol("CLIENT", "PAUSE" :: milliseconds :: HNil).as[Str, OK]
+    def pause(milliseconds: PosLong): Protocol.Aux[OK] = Protocol("CLIENT", "PAUSE" *: milliseconds *: EmptyTuple).as[Str, OK]
 
     def setname(connectionName: ConnectionName): Protocol.Aux[OK] = Protocol("CLIENT", "SETNAME" :: connectionName.value :: Nil).as[Str, OK]
 
@@ -234,7 +233,7 @@ trait ServerP {
 
     val rewrite: Protocol.Aux[OK] = Protocol("CONFIG", "REWRITE").as[Str, OK]
 
-    def set[A: Show](parameter: Key, value: A): Protocol.Aux[OK] = Protocol("CONFIG", "SET" :: parameter :: value :: HNil).as[Str, OK]
+    def set[A: Show](parameter: Key, value: A): Protocol.Aux[OK] = Protocol("CONFIG", "SET" *: parameter *: value *: EmptyTuple).as[Str, OK]
   }
 
   final val dbsize: Protocol.Aux[NonNegLong] = Protocol("DBSIZE", Nil).as[Num, NonNegLong]
@@ -259,7 +258,7 @@ trait ServerP {
   final val shutdown: Protocol.Aux[OK]                     = Protocol("SHUTDOWN", Nil).as[Str, OK]
   final def shutdown(flag: ShutdownFlag): Protocol.Aux[OK] = Protocol("SHUTDOWN", flag).as[Str, OK]
 
-  final def slaveof(host: Host, port: Port): Protocol.Aux[OK] = Protocol("SLAVEOF", host :: port :: HNil).as[Str, OK]
+  final def slaveof(host: Host, port: Port): Protocol.Aux[OK] = Protocol("SLAVEOF", host *: port *: EmptyTuple).as[Str, OK]
 
   final val slaveofnoone: Protocol.Aux[OK] = Protocol("SLAVEOF", "NO" :: "ONE" :: Nil).as[Str, OK]
 
