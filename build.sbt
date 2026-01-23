@@ -8,6 +8,7 @@ val V = new {
   val cats                   = "2.13.0"
   val `cats-effect`          = "3.6.3"
   val `cats-discipline`      = "1.7.0"
+  val `collection-compat`    = "2.14.0"
   val `discipline-munit`     = "2.0.0"
   val circe                  = "0.14.15"
   val fs2                    = "3.12.2"
@@ -19,15 +20,15 @@ val V = new {
   val `munit-cats-effect`    = "2.1.0"
   val `munit-scalacheck`     = "1.2.0"
   val `parallel-collections` = "1.2.0"
-  val redis4Cats             = "1.0.0-RC3"
+  val redis4Cats             = "2.0.3"
   val refined                = "0.11.3"
   val scalacheck             = "1.19.0"
-  val `scala-redis`          = "3.30"
+  val `scala-redis`          = "3.42"
   val `scodec-bits`          = "1.2.4"
   val `scodec-core_scala2`   = "1.11.11"
   val `scodec-core_scala3`   = "2.3.3"
   val `scodec-stream`        = "3.0.2"
-  val scredis                = "2.3.3"
+  val scredis                = "2.4.3"
   val shapeless              = "2.3.13"
   val `shapeless3-deriving`  = "3.5.0"
   val slf4j                  = "2.0.16"
@@ -223,17 +224,20 @@ lazy val `core-bench` = project
   .dependsOn(core.jvm % "compile->test;compile->compile")
   .enablePlugins(JmhPlugin, NoPublishPlugin)
 
-// lazy val `fs2-bench` = project
-//   .in(file("benchmarks/fs2"))
-//   .dependsOn(fs2.jvm)
-//   .enablePlugins(JmhPlugin, NoPublishPlugin)
-//   .settings(
-//     libraryDependencies ++= Seq(
-//       "ch.qos.logback"      % "logback-classic"    % V.logback,
-//       "com.github.scredis" %% "scredis"            % V.scredis,
-//       "dev.profunktor"     %% "redis4cats-effects" % V.redis4Cats,
-//       "net.debasishg"      %% "redisclient"        % V.`scala-redis`,
-//       "org.slf4j"           % "slf4j-api"          % V.slf4j,
-//       "redis.clients"       % "jedis"              % V.jedis
-//     )
-//   )
+lazy val `fs2-bench` = project
+  .in(file("benchmarks/fs2"))
+  .dependsOn(fs2.jvm)
+  .enablePlugins(JmhPlugin, NoPublishPlugin)
+  .settings(
+    libraryDependencies ++= Seq(
+      "ch.qos.logback"       % "logback-classic" % V.logback,
+      ("com.github.scredis" %% "scredis"         % V.scredis)
+        .cross(CrossVersion.for3Use2_13)
+        .excludeAll("org.scala-lang.modules" % "scala-collection-compat_2.13"),
+      "dev.profunktor"         %% "redis4cats-effects"      % V.redis4Cats,
+      ("net.debasishg"         %% "redisclient"             % V.`scala-redis`).cross(CrossVersion.for3Use2_13),
+      "org.slf4j"               % "slf4j-api"               % V.slf4j,
+      "redis.clients"           % "jedis"                   % V.jedis,
+      "org.scala-lang.modules" %% "scala-collection-compat" % V.`collection-compat`
+    )
+  )
