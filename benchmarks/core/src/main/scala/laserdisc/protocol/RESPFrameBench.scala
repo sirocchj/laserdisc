@@ -44,7 +44,7 @@ class RESPFrameBench {
   private final val arrFiveLevelsSmallChunkBuffers = groupInChunks(arrFiveLevels, 128)
 
   @Benchmark def frameOfChunkedBaseline(bh: Blackhole): Unit = {
-    val frames = appendChunks(Iterator.empty[BitVector])
+    val frames = appendChunks(Iterator.empty)
     bh.consume(frames)
   }
   @Benchmark def frameOfChunkedShortMixedNoArr(bh: Blackhole): Unit = {
