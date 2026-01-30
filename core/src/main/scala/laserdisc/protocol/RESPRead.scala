@@ -31,10 +31,10 @@ import scala.annotation.implicitNotFound
   """Implicit not found RESPRead[${A}].
 
 You should not need to define one manually, as one will be derived for you automatically iff:
-- evidence of a Read instance from some sum/co-product to ${A} can be provided
-- this sum/co-product is a subset of the sum-co-product for RESP
+- evidence of a Read instance from some coproduct to ${A} can be provided
+- said coproduct is a subset of RESP's coproduct
   """
-) trait RESPRead[A] {
+) sealed trait RESPRead[A] {
   type Sub
 
   def read(resp: RESP): Maybe[A]
@@ -44,7 +44,7 @@ object RESPRead {
   import RESP._
 
   final type Aux[Sub0, A] = RESPRead[A] { type Sub = Sub0 }
-  final def apply[Sub, A](implicit instance: RESPRead.Aux[Sub, A]): RESPRead.Aux[Sub, A] = instance
+  final def apply[Sub, A](implicit instance: Aux[Sub, A]): Aux[Sub, A] = instance
 
   private[this] implicit val respInject: Inject[RESPCoproduct, RESP] =
     (resp: RESP) =>

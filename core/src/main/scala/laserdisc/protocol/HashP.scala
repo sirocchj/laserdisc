@@ -25,9 +25,8 @@ package protocol
 import scala.annotation.nowarn
 
 trait HashBaseP {
-  import shapeless.{LabelledGeneric, LUBConstraint, Nat}
+  import shapeless.{LabelledGeneric, Nat}
   import shapeless.labelled.FieldType
-  import shapeless.nat._1
   import shapeless.ops.hlist.Length
   import shapeless.ops.nat.GTEq.>=
 
@@ -52,14 +51,12 @@ trait HashBaseP {
   final def hmget[L <: Tuple: Arr ==> *](key: Key, fields: OneOrMoreKeys): Protocol.Aux[L] =
     Protocol("HMGET", key :: fields.value).as[Arr, L]
 
-  @nowarn final def hmset[L <: Tuple: RESPParamWrite: LUBConstraint[*, (Key, _)], N <: Nat](key: Key, l: L)(
-      implicit ev0: Length.Aux[L, N],
-      ev1: N >= _1
-  ): Protocol.Aux[OK] = Protocol("HMSET", key *: l).as[Str, OK]
+  final def hmset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](key: Key, l: L): Protocol.Aux[OK] =
+    Protocol("HMSET", key *: l).as[Str, OK]
   @nowarn final def hmset[P <: Product, L <: Tuple, N <: Nat](key: Key, product: P)(
       implicit gen: LabelledGeneric.Aux[P, L],
       ev0: Length.Aux[L, N],
-      ev1: N >= _1,
+      ev1: N >= shapeless.nat._1,
       ev2: LUBConstraint[L, FieldType[_, _]],
       ev3: RESPParamWrite[L]
   ): Protocol.Aux[OK] = Protocol("HMSET", key *: gen.to(product)).as[Str, OK]

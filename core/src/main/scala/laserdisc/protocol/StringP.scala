@@ -95,9 +95,8 @@ object StringP {
 
 trait StringBaseP {
   import StringP.{Bit, Bitwise, Expiry, Flag, PartiallyAppliedGetSet}
-  import shapeless.{:+:, CNil, LabelledGeneric, LUBConstraint, Nat}
+  import shapeless.{:+:, CNil, LabelledGeneric, Nat}
   import shapeless.labelled.FieldType
-  import shapeless.nat._
   import shapeless.ops.hlist.Length
   import shapeless.ops.nat.GTEq.>=
 
@@ -156,29 +155,26 @@ trait StringBaseP {
 
   final def mget[A: Arr ==> *](keys: OneOrMoreKeys): Protocol.Aux[A] = Protocol("MGET", keys.value).as[Arr, A]
 
-  @nowarn final def mset[L <: Tuple: RESPParamWrite: LUBConstraint[*, (Key, _)], N <: Nat](l: L)(
-      implicit ev0: Length.Aux[L, N],
-      ev1: N >= _1
-  ): Protocol.Aux[OK] = Protocol("MSET", l).as[Str, OK]
+  @nowarn final def mset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[OK] =
+    Protocol("MSET", l).as[Str, OK]
+
   @nowarn final def mset[P <: Product, L <: Tuple, N <: Nat](product: P)(
       implicit gen: LabelledGeneric.Aux[P, L],
       ev0: Length.Aux[L, N],
-      ev1: N >= _1,
-      ev2: LUBConstraint[L, FieldType[_, _]],
+      ev1: N >= shapeless.nat._1,
+      //ev2: LUBConstraint[L, FieldType[_, _]],
       ev3: RESPParamWrite[L]
   ): Protocol.Aux[OK] = Protocol("MSET", gen.to(product)).as[Str, OK]
 
   final def mset[A: Show](values: OneOrMore[(Key, A)]): Protocol.Aux[OK] = Protocol("MSET", values.value).as[Str, OK]
 
-  @nowarn final def msetnx[L <: Tuple: RESPParamWrite: LUBConstraint[*, (Key, _)], N <: Nat](l: L)(
-      implicit ev0: Length.Aux[L, N],
-      ev1: N >= _1
-  ): Protocol.Aux[Boolean] = Protocol("MSETNX", l).as[Num, Boolean]
+  @nowarn final def msetnx[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[Boolean] =
+    Protocol("MSETNX", l).as[Num, Boolean]
 
   @nowarn final def msetnx[P <: Product, L <: Tuple, N <: Nat](product: P)(
       implicit gen: LabelledGeneric.Aux[P, L],
       ev0: Length.Aux[L, N],
-      ev1: N >= _1,
+      ev1: N >= shapeless.nat._1,
       ev2: LUBConstraint[L, FieldType[_, _]],
       ev3: RESPParamWrite[L]
   ): Protocol.Aux[Boolean]                                                      = Protocol("MSETNX", gen.to(product)).as[Num, Boolean]

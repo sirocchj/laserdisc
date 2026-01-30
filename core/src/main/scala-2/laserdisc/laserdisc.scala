@@ -39,12 +39,19 @@ package object laserdisc {
   type EmptyTuple = shapeless.HNil
   @inline final val EmptyTuple: EmptyTuple = shapeless.HNil
 
+  type NonEmptyTuple       = shapeless.::[_, _]
   type *:[+A, +B <: Tuple] = shapeless.::[A, B]
   @inline final val *: = shapeless.::
 
   implicit final class TupleOps[T <: Tuple](val t: T) extends AnyVal {
     @inline def *:[H](h: H): H *: T = shapeless.::(h, t)
   }
+
+  @implicitNotFound("Cannot prove that every element of ${L} is a subtype of ${A}")
+  type LUBConstraint[L <: Tuple, A] = shapeless.LUBConstraint[L, A]
+  // sealed trait LUBConstraint[L <: Tuple, A] extends Serializable
+  // implicit final def lubConstraintShepelessDelegate[L <: Tuple, A](implicit ev: shapeless.LUBConstraint[L, A]): LUBConstraint[L, A] =
+  //   new LUBConstraint[L, A] {}
 
   // Basic type aliases
   final type |[+A, +B] = Either[A, B]
