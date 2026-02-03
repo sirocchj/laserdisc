@@ -218,7 +218,8 @@ trait SortedSetBaseP {
       offset: NonNegLong,
       count: PosLong
   ): Protocol.Aux[Seq[(A, Double)]] =
-    Protocol("ZRANGEBYSCORE", key *: range.min *: range.max *: "WITHSCORES" *: "LIMIT" *: offset *: count *: EmptyTuple).as[Arr, Seq[(A, Double)]]
+    Protocol("ZRANGEBYSCORE", key *: range.min *: range.max *: "WITHSCORES" *: "LIMIT" *: offset *: count *: EmptyTuple)
+      .as[Arr, Seq[(A, Double)]]
 
   final def zrank(key: Key, member: Key): Protocol.Aux[Option[NonNegInt]] =
     Protocol("ZRANK", key :: member :: Nil).asC[Num :+: NullBulk :+: CNil, Option[NonNegInt]]
@@ -260,7 +261,7 @@ trait SortedSetBaseP {
     Protocol("ZREVRANGEBYSCORE", key *: range.max *: range.min *: "WITHSCORES" *: "LIMIT" *: offset *: count *: EmptyTuple)
       .as[Arr, Seq[(A, Double)]]
 
-  final def zrevrank(key: Bulk, member: Key): Protocol.Aux[Option[NonNegInt]] =
+  final def zrevrank(key: Key, member: Key): Protocol.Aux[Option[NonNegInt]] =
     Protocol("ZREVRANK", key *: member *: EmptyTuple).asC[Num :+: NullBulk :+: CNil, Option[NonNegInt]]
 
   final def zscan[A: λ[a => Arr ==> Seq[a]]](key: Key, cursor: NonNegLong): Protocol.Aux[Scan[A]] =

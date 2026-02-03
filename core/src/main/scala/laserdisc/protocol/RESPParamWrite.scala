@@ -22,10 +22,13 @@
 package laserdisc
 package protocol
 
-import shapeless.Witness
+import shapeless.{LabelledGeneric, Nat, Witness}
 import shapeless.labelled.FieldType
+import shapeless.ops.hlist.Length
+import shapeless.ops.nat.GTEq.>=
+import shapeless.nat._1
 
-import scala.annotation.implicitNotFound
+import scala.annotation.{implicitNotFound, nowarn}
 
 @implicitNotFound(
   """Implicit not found RESPParamWrite[${A}].
@@ -46,9 +49,11 @@ object RESPParamWrite extends RESPParamWriteInstances {
     (_: A) => thunk
   final def instance[A](f: A => Seq[GenBulk]): RESPParamWrite[A] =
     (a: A) => f(a)
+  final def contramap[A, B](f: B => A)(implicit fa: RESPParamWrite[A]): RESPParamWrite[B] = instance((b: B) => fa.write(f(b)))
 }
 
 private[protocol] sealed trait RESPParamWriteInstances extends RESPParamWriteInstances1 {
+  implicit final val bulkRESPParamWrite: RESPParamWrite[Bulk]       = RESPParamWrite.instance(a => Seq(a))
   implicit final def showRESPParamWrite[A: Show]: RESPParamWrite[A] = RESPParamWrite.instance(a => Seq(Bulk(a)))
   implicit final def pairRESPParamWrite[A, B](
       implicit A: RESPParamWrite[A],
@@ -65,8 +70,7 @@ private[protocol] sealed trait RESPParamWriteInstances extends RESPParamWriteIns
   ): RESPParamWrite[FieldType[K, V]] = RESPParamWrite.instance(Bulk(K.value.name) +: V.write(_))
 }
 
-private[protocol] sealed trait RESPParamWriteInstances1 {
-  implicit final val nilRESPParamWrite: RESPParamWrite[Nil.type]          = RESPParamWrite.const(Seq.empty)
+private[protocol] sealed trait RESPParamWriteInstances1 extends RESPParamWriteInstances2 {
   implicit final val emptyTupleRESPParamWrite: RESPParamWrite[EmptyTuple] = RESPParamWrite.const(Seq.empty)
 
   implicit final def tupleRESPParamWrite[H, T <: Tuple](
@@ -76,4 +80,14 @@ private[protocol] sealed trait RESPParamWriteInstances1 {
     RESPParamWrite.instance { case h *: t =>
       H.write(h) ++: T.write(t)
     }
+}
+
+private[protocol] sealed trait RESPParamWriteInstances2 {
+  implicit final def productRESPParamWrite[P <: Product, L <: Tuple, N <: Nat](
+      implicit gen: LabelledGeneric.Aux[P, L],
+      @nowarn ev0: Length.Aux[L, N],
+      @nowarn ev1: N >= _1,
+      @nowarn ev2: LUBConstraint[L, FieldType[_, _]],
+      ev3: RESPParamWrite[L]
+  ): RESPParamWrite[P] = RESPParamWrite.contramap(gen.to(_))
 }

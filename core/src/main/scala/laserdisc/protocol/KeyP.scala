@@ -195,7 +195,7 @@ trait KeyBaseP {
 
   final def pttl(key: Key): Protocol.Aux[KeyTTLResponse] = Protocol("PTTL", key).as[Num, KeyTTLResponse]
 
-  final val randomkey: Protocol.Aux[Option[Key]] = Protocol("RANDOMKEY", Nil).opt[GenBulk].as[Key]
+  final val randomkey: Protocol.Aux[Option[Key]] = Protocol("RANDOMKEY", EmptyTuple).opt[GenBulk].as[Key]
 
   final def rename(key: Key, newKey: Key): Protocol.Aux[OK] = Protocol("RENAME", key :: newKey :: Nil).as[Str, OK]
 

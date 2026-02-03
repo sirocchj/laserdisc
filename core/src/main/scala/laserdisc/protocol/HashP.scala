@@ -22,14 +22,7 @@
 package laserdisc
 package protocol
 
-import scala.annotation.nowarn
-
 trait HashBaseP {
-  import shapeless.{LabelledGeneric, Nat}
-  import shapeless.labelled.FieldType
-  import shapeless.ops.hlist.Length
-  import shapeless.ops.nat.GTEq.>=
-
   final def hdel(key: Key, fields: OneOrMoreKeys): Protocol.Aux[NonNegInt] = Protocol("HDEL", key :: fields.value).as[Num, NonNegInt]
 
   final def hexists(key: Key, field: Key): Protocol.Aux[Boolean] = Protocol("HEXISTS", key :: field :: Nil).as[Num, Boolean]
@@ -53,13 +46,8 @@ trait HashBaseP {
 
   final def hmset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](key: Key, l: L): Protocol.Aux[OK] =
     Protocol("HMSET", key *: l).as[Str, OK]
-  @nowarn final def hmset[P <: Product, L <: Tuple, N <: Nat](key: Key, product: P)(
-      implicit gen: LabelledGeneric.Aux[P, L],
-      ev0: Length.Aux[L, N],
-      ev1: N >= shapeless.nat._1,
-      ev2: LUBConstraint[L, FieldType[_, _]],
-      ev3: RESPParamWrite[L]
-  ): Protocol.Aux[OK] = Protocol("HMSET", key *: gen.to(product)).as[Str, OK]
+  final def hmset[P <: Product: RESPParamWrite](key: Key, product: P): Protocol.Aux[OK] =
+    Protocol("HMSET", key *: product *: EmptyTuple).as[Str, OK]
 
   final def hscan(key: Key, cursor: NonNegLong): Protocol.Aux[ScanKV] = Protocol("HSCAN", key *: cursor *: EmptyTuple).as[Arr, ScanKV]
   final def hscan(key: Key, cursor: NonNegLong, pattern: GlobPattern): Protocol.Aux[ScanKV] =

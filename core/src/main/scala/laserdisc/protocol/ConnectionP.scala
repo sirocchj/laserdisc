@@ -32,10 +32,10 @@ trait ConnectionP {
 
   final def echo[A: Show: Bulk ==> *](message: A): Protocol.Aux[A] = Protocol("ECHO", message).as[Bulk, A]
 
-  final val ping: Protocol.Aux[PONG]                               = Protocol("PING", Nil).as[Str, PONG]
+  final val ping: Protocol.Aux[PONG]                               = Protocol("PING", EmptyTuple).as[Str, PONG]
   final def ping[A: Show: Bulk ==> *](message: A): Protocol.Aux[A] = Protocol("PING", message).as[Bulk, A]
 
-  final val quit: Protocol.Aux[OK] = Protocol("QUIT", Nil).as[Str, OK]
+  final val quit: Protocol.Aux[OK] = Protocol("QUIT", EmptyTuple).as[Str, OK]
 
   final def select(index: DbIndex): Protocol.Aux[OK] = Protocol("SELECT", index).as[Str, OK]
 

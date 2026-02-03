@@ -201,9 +201,9 @@ trait ServerP {
     final val flag = ShutdownFlag
   }
 
-  final val bgrewriteaof: Protocol.Aux[OK] = Protocol("BGREWRITEAOF", Nil).as[Str, OK]
+  final val bgrewriteaof: Protocol.Aux[OK] = Protocol("BGREWRITEAOF", EmptyTuple).as[Str, OK]
 
-  final val bgsave: Protocol.Aux[OK] = Protocol("BGSAVE", Nil).as[Str, OK]
+  final val bgsave: Protocol.Aux[OK] = Protocol("BGSAVE", EmptyTuple).as[Str, OK]
 
   object client {
     import Show.{hostShow, portShow}
@@ -236,26 +236,26 @@ trait ServerP {
     def set[A: Show](parameter: Key, value: A): Protocol.Aux[OK] = Protocol("CONFIG", "SET" *: parameter *: value *: EmptyTuple).as[Str, OK]
   }
 
-  final val dbsize: Protocol.Aux[NonNegLong] = Protocol("DBSIZE", Nil).as[Num, NonNegLong]
+  final val dbsize: Protocol.Aux[NonNegLong] = Protocol("DBSIZE", EmptyTuple).as[Num, NonNegLong]
 
-  final val flushall: Protocol.Aux[OK] = Protocol("FLUSHALL", Nil).as[Str, OK]
+  final val flushall: Protocol.Aux[OK] = Protocol("FLUSHALL", EmptyTuple).as[Str, OK]
 
   final val flushallasync: Protocol.Aux[OK] = Protocol("FLUSHALL", "ASYNC").as[Str, OK]
 
-  final val flushdb: Protocol.Aux[OK] = Protocol("FLUSHDB", Nil).as[Str, OK]
+  final val flushdb: Protocol.Aux[OK] = Protocol("FLUSHDB", EmptyTuple).as[Str, OK]
 
   final val flushdbasync: Protocol.Aux[OK] = Protocol("FLUSHDB", "ASYNC").as[Str, OK]
 
   final val info: Protocol.Aux[Info]                       = info(servers.info.default)
   final def info(section: InfoSection): Protocol.Aux[Info] = Protocol("INFO", section).as[Bulk, Info]
 
-  final val lastsave: Protocol.Aux[NonNegLong] = Protocol("LASTSAVE", Nil).as[Num, NonNegLong]
+  final val lastsave: Protocol.Aux[NonNegLong] = Protocol("LASTSAVE", EmptyTuple).as[Num, NonNegLong]
 
-  final val role: Protocol.Aux[Role] = Protocol("ROLE", Nil).as[Arr, Role]
+  final val role: Protocol.Aux[Role] = Protocol("ROLE", EmptyTuple).as[Arr, Role]
 
-  final val save: Protocol.Aux[OK] = Protocol("SAVE", Nil).as[Str, OK]
+  final val save: Protocol.Aux[OK] = Protocol("SAVE", EmptyTuple).as[Str, OK]
 
-  final val shutdown: Protocol.Aux[OK]                     = Protocol("SHUTDOWN", Nil).as[Str, OK]
+  final val shutdown: Protocol.Aux[OK]                     = Protocol("SHUTDOWN", EmptyTuple).as[Str, OK]
   final def shutdown(flag: ShutdownFlag): Protocol.Aux[OK] = Protocol("SHUTDOWN", flag).as[Str, OK]
 
   final def slaveof(host: Host, port: Port): Protocol.Aux[OK] = Protocol("SLAVEOF", host *: port *: EmptyTuple).as[Str, OK]
@@ -264,5 +264,5 @@ trait ServerP {
 
   // TODO slowlog? sync?
 
-  final val time: Protocol.Aux[Time] = Protocol("TIME", Nil).as[Arr, Time]
+  final val time: Protocol.Aux[Time] = Protocol("TIME", EmptyTuple).as[Arr, Time]
 }

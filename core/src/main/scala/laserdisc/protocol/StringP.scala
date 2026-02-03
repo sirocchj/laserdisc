@@ -95,10 +95,7 @@ object StringP {
 
 trait StringBaseP {
   import StringP.{Bit, Bitwise, Expiry, Flag, PartiallyAppliedGetSet}
-  import shapeless.{:+:, CNil, LabelledGeneric, Nat}
-  import shapeless.labelled.FieldType
-  import shapeless.ops.hlist.Length
-  import shapeless.ops.nat.GTEq.>=
+  import shapeless.{:+:, CNil}
 
   private[this] final val minusOneIsNone = RESPRead.instance(Read.numMinusOneIsNone[NonNegInt])
 
@@ -158,27 +155,15 @@ trait StringBaseP {
   @nowarn final def mset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[OK] =
     Protocol("MSET", l).as[Str, OK]
 
-  @nowarn final def mset[P <: Product, L <: Tuple, N <: Nat](product: P)(
-      implicit gen: LabelledGeneric.Aux[P, L],
-      ev0: Length.Aux[L, N],
-      ev1: N >= shapeless.nat._1,
-      //ev2: LUBConstraint[L, FieldType[_, _]],
-      ev3: RESPParamWrite[L]
-  ): Protocol.Aux[OK] = Protocol("MSET", gen.to(product)).as[Str, OK]
+  final def mset[P <: Product: RESPParamWrite](product: P): Protocol.Aux[OK] = Protocol("MSET", product).as[Str, OK]
 
   final def mset[A: Show](values: OneOrMore[(Key, A)]): Protocol.Aux[OK] = Protocol("MSET", values.value).as[Str, OK]
 
   @nowarn final def msetnx[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[Boolean] =
     Protocol("MSETNX", l).as[Num, Boolean]
 
-  @nowarn final def msetnx[P <: Product, L <: Tuple, N <: Nat](product: P)(
-      implicit gen: LabelledGeneric.Aux[P, L],
-      ev0: Length.Aux[L, N],
-      ev1: N >= shapeless.nat._1,
-      ev2: LUBConstraint[L, FieldType[_, _]],
-      ev3: RESPParamWrite[L]
-  ): Protocol.Aux[Boolean]                                                      = Protocol("MSETNX", gen.to(product)).as[Num, Boolean]
-  final def msetnx[A: Show](values: OneOrMore[(Key, A)]): Protocol.Aux[Boolean] =
+  final def msetnx[P <: Product: RESPParamWrite](product: P): Protocol.Aux[Boolean] = Protocol("MSETNX", product).as[Num, Boolean]
+  final def msetnx[A: Show](values: OneOrMore[(Key, A)]): Protocol.Aux[Boolean]     =
     Protocol("MSETNX", values.value).as[Num, Boolean]
 
   final def psetex[A: Show](key: Key, milliseconds: PosLong, value: A): Protocol.Aux[OK] =
