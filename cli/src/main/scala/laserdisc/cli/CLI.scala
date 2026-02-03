@@ -23,9 +23,9 @@ package laserdisc
 package cli
 
 import _root_.fs2.{io, text}
-import cats.effect._
-import cats.syntax.all._
-import laserdisc.fs2._
+import cats.effect.*
+import cats.syntax.all.*
+import laserdisc.fs2.*
 
 import scala.reflect.runtime.universe
 import scala.tools.reflect.ToolBox
@@ -124,10 +124,10 @@ object CLI extends IOApp { self =>
             IO.delay {
               tb.eval {
                 tb.parse {
-                  s"""import laserdisc._
-                        |import laserdisc.auto._
-                        |import laserdisc.all._
-                        |import laserdisc.fs2._
+                  s"""import laserdisc.*
+                        |import laserdisc.auto.*
+                        |import laserdisc.all.*
+                        |import laserdisc.fs2.*
                         |
                         |$code
                         |""".stripMargin

@@ -35,10 +35,10 @@ final class ReadmeExampleSpec extends CatsEffectSuite {
 
   test("The readme example gives the expected output and logs when a LogWriter is in scope") {
 
-    import laserdisc._
-    import laserdisc.all._
-    import laserdisc.auto._
-    import laserdisc.fs2._
+    import laserdisc.*
+    import laserdisc.all.*
+    import laserdisc.auto.*
+    import laserdisc.fs2.*
 
     def redisTest(implicit log: LogWriter[IO]): IO[Unit] =
       RedisClient[IO].to("localhost", 6379).use { client =>

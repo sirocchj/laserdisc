@@ -9,7 +9,7 @@ import dev.profunktor.redis4cats.effect.Log
 import laserdisc.fs2.parallel.SetUpRedisForCats.RedisForCatsSetUp
 import laserdisc.fs2.parallel.runtime.BenchRuntime.createNewRuntime
 import laserdisc.fs2.parallel.testcases.RedisForCatsTestCases
-import org.openjdk.jmh.annotations._
+import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 
 class RedisForCatsBench() {
@@ -73,7 +73,7 @@ object SetUpRedisForCats {
 
   @State(Scope.Benchmark)
   class RedisForCatsSetUp {
-    import Log.Stdout._
+    import Log.Stdout.*
 
     var runtime: IORuntime = _
 

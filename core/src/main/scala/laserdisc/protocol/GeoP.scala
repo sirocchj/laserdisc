@@ -202,7 +202,7 @@ trait GeoBaseP {
     final val GeoUnit                = GeoP.Unit
   }
 
-  import geotypes._
+  import geotypes.*
 
   final def geoadd(key: Key, positions: OneOrMore[GeoPosition]): Protocol.Aux[NonNegInt] =
     Protocol("GEOADD", key *: positions.value.map { case GeoPosition(m, lat, long) => (long -> lat) -> m } *: EmptyTuple).as[Num, NonNegInt]

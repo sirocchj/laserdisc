@@ -22,15 +22,15 @@
 package laserdisc
 package fs2
 
-import cats.effect._
-import cats.syntax.flatMap._
-import cats.syntax.traverse._
-import laserdisc.all._
-import laserdisc.auto._
+import cats.effect.*
+import cats.syntax.flatMap.*
+import cats.syntax.traverse.*
+import laserdisc.all.*
+import laserdisc.auto.*
 import laserdisc.fs2.LaserdiscFs2ClientSpec.ClientSpecIo
 
 import scala.collection.parallel.immutable.ParSeq
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 final class RedisClientSpec  extends ClientSpecIo(6379, "redis")
 final class KeyDbClientSpec  extends ClientSpecIo(6380, "keyDb")

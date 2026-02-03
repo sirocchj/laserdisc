@@ -5,10 +5,10 @@ package testcases
 
 import cats.Parallel
 import cats.effect.kernel.Temporal
-import cats.effect.syntax.spawn._
-import cats.syntax.flatMap._
-import cats.syntax.functor._
-import cats.syntax.parallel._
+import cats.effect.syntax.spawn.*
+import cats.syntax.flatMap.*
+import cats.syntax.functor.*
+import cats.syntax.parallel.*
 
 private[fs2] object TestCasesLaserdisc {
   final def apply[F[_]: Temporal: Parallel](cl: RedisClient[F]): TestCasesLaserdisc[F] =

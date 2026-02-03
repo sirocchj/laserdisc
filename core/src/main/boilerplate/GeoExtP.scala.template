@@ -2,7 +2,7 @@ package laserdisc
 package protocol
 
 trait GeoExtP { this: GeoBaseP =>
-  import geotypes._
+  import geotypes.*
 
   //GEOADD
   [..21#final def geoadd(key: Key, [#position1: GeoPosition#]): Protocol.Aux[NonNegInt] =

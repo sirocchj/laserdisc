@@ -229,7 +229,7 @@ object ClusterP {
         .map { case (_, value) => value }
   }
   object Slots {
-    import SlotInfo._
+    import SlotInfo.*
     import SlotType.Range
     private val H: Bulk ==> Host = Read.instance {
       case Bulk("")      => Right(LoopbackHost)
@@ -332,7 +332,7 @@ trait ClusterP {
     final val ClusterSlots             = ClusterP.Slots
   }
 
-  import clustertypes._
+  import clustertypes.*
 
   final def addslots(slots: OneOrMore[Slot]): Protocol.Aux[OK] = Protocol("CLUSTER", "ADDSLOTS" *: slots.value *: EmptyTuple).as[Str, OK]
 

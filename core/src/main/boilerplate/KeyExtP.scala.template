@@ -2,7 +2,7 @@ package laserdisc
 package protocol
 
 trait KeyExtP { this: KeyBaseP =>
-  import keytypes._
+  import keytypes.*
 
   //DEL
   [#final def del([#key1: Key#]): Protocol.Aux[NonNegInt] =

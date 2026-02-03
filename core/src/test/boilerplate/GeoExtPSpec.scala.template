@@ -4,7 +4,7 @@ package protocol
 import org.scalacheck.Prop.forAll
 
 final class GeoExtPSpec extends GeoPSpec {
-  import geotypes._
+  import geotypes.*
 
   [1..5#property("The Geo extended protocol using geoadd roundtrips successfully given key and [#position1#]") {
     forAll { (k: Key, [#p1: GeoPosition#], nni: NonNegInt) =>

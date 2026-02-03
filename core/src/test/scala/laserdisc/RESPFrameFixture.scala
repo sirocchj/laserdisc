@@ -22,7 +22,7 @@
 package laserdisc
 
 import eu.timepit.refined.types.string.NonEmptyString
-import laserdisc.protocol._
+import laserdisc.protocol.*
 import org.scalacheck.Gen.chooseNum
 import org.scalacheck.{Arbitrary, Gen}
 import scodec.bits.BitVector

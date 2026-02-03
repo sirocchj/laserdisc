@@ -4,10 +4,10 @@ package parallel
 package testcases
 
 import cats.effect.kernel.{Outcome, Spawn}
-import cats.effect.syntax.spawn._
-import cats.syntax.flatMap._
-import cats.syntax.functor._
-import cats.syntax.parallel._
+import cats.effect.syntax.spawn.*
+import cats.syntax.flatMap.*
+import cats.syntax.functor.*
+import cats.syntax.parallel.*
 import cats.{FlatMap, Parallel}
 import dev.profunktor.redis4cats.RedisCommands
 

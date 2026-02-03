@@ -113,7 +113,7 @@ trait KeyBaseP {
     final val KeyExpireAfterTTLResponse = KeyP.TTLResponse.ExpireAfter
   }
 
-  import keytypes._
+  import keytypes.*
 
   private[this] implicit final val str2NOKEYOrOK: Str ==> (NOKEY | OK) = Read.instance {
     case Str("NOKEY") => Right(Left(NOKEY))

@@ -4,7 +4,7 @@ package protocol
 import org.scalacheck.Prop.forAll
 
 final class KeyExtPSpec extends KeyPSpec {
-  import keytypes._
+  import keytypes.*
 
   [1..5#property("The Key extended protocol using del roundtrips successfully given [#key1#]") {
     forAll { ([#k1: Key#], nni: NonNegInt) =>

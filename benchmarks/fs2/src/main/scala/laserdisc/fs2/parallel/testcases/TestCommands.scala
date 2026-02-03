@@ -4,7 +4,7 @@ package parallel
 package testcases
 
 import laserdisc.all.{lrange, ltrim, mset, rpush, set}
-import laserdisc.auto._
+import laserdisc.auto.*
 import laserdisc.protocol.RESP
 import scodec.Codec
 import scodec.bits.BitVector

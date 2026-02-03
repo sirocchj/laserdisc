@@ -4,7 +4,7 @@ package protocol
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets.UTF_8
 
-import org.openjdk.jmh.annotations._
+import org.openjdk.jmh.annotations.*
 import scodec.Attempt
 import scodec.bits.BitVector
 

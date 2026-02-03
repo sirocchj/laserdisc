@@ -2,14 +2,14 @@ package laserdisc.fs2
 
 import cats.effect.unsafe.IORuntime
 import cats.effect.{IO, Resource}
-import cats.syntax.traverse._
-import laserdisc._
-import laserdisc.all._
-import laserdisc.auto._
+import cats.syntax.traverse.*
+import laserdisc.*
+import laserdisc.all.*
+import laserdisc.auto.*
 import laserdisc.fs2.SetUpLaserdiscCatsRespByte.LaserdiscState
 import laserdisc.fs2.parallel.runtime.BenchRuntime.createNewRuntime
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
-import org.openjdk.jmh.annotations._
+import org.openjdk.jmh.annotations.*
 import redis.clients.jedis.{Jedis, JedisPool}
 
 object SetUpLaserdiscCatsRespByte {
@@ -66,7 +66,7 @@ class JedisState {
 }
 
 class RedisClientBench {
-  import RedisClientBench._
+  import RedisClientBench.*
 
   def writeAndReadForKey[K](key: K, n: Int, write: (K, Int) => IO[Any], read: K => IO[Any]): IO[Int] = {
     val values = List.fill(n)((key, n))

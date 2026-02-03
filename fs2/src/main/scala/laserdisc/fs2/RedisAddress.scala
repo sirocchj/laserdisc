@@ -22,7 +22,7 @@
 package laserdisc
 package fs2
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import cats.{ApplicativeError, Eq}
 import com.comcast.ip4s
 import com.comcast.ip4s.SocketAddress

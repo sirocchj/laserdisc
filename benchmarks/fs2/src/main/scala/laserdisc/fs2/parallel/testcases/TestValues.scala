@@ -5,7 +5,7 @@ package testcases
 
 import java.util.UUID
 
-import laserdisc.auto._
+import laserdisc.auto.*
 
 private[fs2] trait TestValues {
   private[this] def generateList(n: Int): OneOrMore[String] =

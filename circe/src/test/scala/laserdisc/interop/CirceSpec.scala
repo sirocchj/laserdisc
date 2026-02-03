@@ -22,9 +22,9 @@
 package laserdisc
 package interop
 
-import io.circe.generic.semiauto._
+import io.circe.generic.semiauto.*
 import io.circe.{Decoder, Encoder}
-import laserdisc.interop.circe._
+import laserdisc.interop.circe.*
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 

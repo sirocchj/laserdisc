@@ -42,7 +42,7 @@ trait ListBaseP {
     final val ListPosition = ListP.Position
   }
 
-  import listtypes._
+  import listtypes.*
 
   private[this] final val minusOneIsNone = RESPRead.instance(Read.numMinusOneIsNone[PosInt])
   private[this] final val zeroIsNone     = RESPRead.instance(Read.numZeroIsNone[PosInt])

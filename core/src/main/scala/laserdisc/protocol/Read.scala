@@ -23,7 +23,7 @@ package laserdisc
 package protocol
 
 import shapeless.{:+:, CNil, Coproduct, Inl, Inr, Witness}
-import shapeless.labelled._
+import shapeless.labelled.*
 
 import scala.annotation.implicitNotFound
 

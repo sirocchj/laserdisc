@@ -22,7 +22,7 @@
 package laserdisc
 package protocol
 
-import laserdisc.protocol.BitVectorDecoding._
+import laserdisc.protocol.BitVectorDecoding.*
 import laserdisc.protocol.RESP.stateOf
 import scodec.bits.BitVector
 

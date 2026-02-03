@@ -26,9 +26,9 @@ import _root_.fs2.{Chunk, Pull}
 import _root_.fs2.io.net.Socket
 import cats.MonadError
 import cats.effect.{Concurrent, Resource}
-import cats.syntax.flatMap._
+import cats.syntax.flatMap.*
 import com.comcast.ip4s.{Host, SocketAddress}
-import laserdisc.protocol._
+import laserdisc.protocol.*
 import log.effect.fs2.LogSelector
 import scodec.Codec
 import scodec.bits.BitVector

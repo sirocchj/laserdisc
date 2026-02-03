@@ -25,7 +25,7 @@ package protocol
 import org.scalacheck.Prop.forAll
 
 abstract class GeoPSpec extends BaseSpec with GeoP {
-  import geotypes._
+  import geotypes.*
   import org.scalacheck.{Arbitrary, Gen}
   import org.scalacheck.Arbitrary.arbitrary
   import org.scalacheck.Gen.listOf

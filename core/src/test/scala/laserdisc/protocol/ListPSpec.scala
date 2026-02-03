@@ -25,7 +25,7 @@ package protocol
 import org.scalacheck.Prop.forAll
 
 abstract class ListPSpec extends BaseSpec with ListP {
-  import listtypes._
+  import listtypes.*
   import org.scalacheck.{Arbitrary, Gen}
 
   private[this] implicit final val positionArb: Arbitrary[ListPosition] = Arbitrary {

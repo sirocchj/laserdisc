@@ -2,9 +2,9 @@ package laserdisc
 package fs2
 
 import cats.effect.IO
-import cats.syntax.either._
-import cats.syntax.flatMap._
-import laserdisc.auto._
+import cats.syntax.either.*
+import cats.syntax.flatMap.*
+import laserdisc.auto.*
 import laserdisc.fs2.parallel.runtime.BenchRuntime.fixedFixedRuntime
 import laserdisc.fs2.parallel.testcases.TestCasesLaserdisc
 import log.effect.fs2.SyncLogWriter.consoleLogUpToLevel

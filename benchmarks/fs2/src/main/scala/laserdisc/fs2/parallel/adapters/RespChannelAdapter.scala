@@ -5,7 +5,7 @@ package adapters
 
 import _root_.fs2.{Chunk, Pipe, Pull, Stream}
 import cats.ApplicativeError
-import laserdisc.protocol._
+import laserdisc.protocol.*
 import scodec.Codec
 import scodec.bits.BitVector
 import scodec.stream.{StreamDecoder, StreamEncoder}

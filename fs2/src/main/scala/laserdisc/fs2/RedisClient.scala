@@ -23,13 +23,13 @@ package laserdisc
 package fs2
 
 import cats.effect.kernel.{Deferred, Ref, Temporal}
-import cats.effect.syntax.all._
+import cats.effect.syntax.all.*
 import cats.effect.{Async, Concurrent, Fiber, Resource, Sync}
-import cats.syntax.all._
+import cats.syntax.all.*
 import log.effect.fs2.LogSelector
-import log.effect.fs2.syntax._
+import log.effect.fs2.syntax.*
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 object RedisClient {
   @inline final def apply[F[_]: Async: LogSelector]: RedisClientConnector[F] =
@@ -235,7 +235,7 @@ object RedisClient {
           def publish[In <: Tuple, Out <: Tuple](in: In, timeout: FiniteDuration)(
               implicit ev: RedisHandler.Aux[F, In, Out]
           ): F[Out] = {
-            import State._
+            import State.*
             state.get >>= {
               case ConnectedState(conn) => conn.send(in, timeout)
               case ShutDownState        => Concurrent[F].raiseError(ClientTerminated)

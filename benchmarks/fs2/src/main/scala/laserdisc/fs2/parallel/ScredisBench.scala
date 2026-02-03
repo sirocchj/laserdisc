@@ -7,7 +7,7 @@ import cats.effect.unsafe.IORuntime
 import laserdisc.fs2.parallel.SetUpScredis.ScredisSetUp
 import laserdisc.fs2.parallel.runtime.BenchRuntime.createNewRuntime
 import laserdisc.fs2.parallel.testcases.TestCasesScredis
-import org.openjdk.jmh.annotations._
+import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 import scredis.Redis
 

@@ -25,7 +25,7 @@ package fs2
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime.global
 import cats.effect.unsafe.{IORuntime, IORuntimeConfig}
-import laserdisc.auto._
+import laserdisc.auto.*
 import munit.FunSuite
 
 import java.util.concurrent.Executors

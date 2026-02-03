@@ -136,9 +136,9 @@ lazy val core = laserdiscCrossModule("core")
   .jvmSettings(
     javaOptions += "-Djava.net.preferIPv4Stack=true",
     initialCommands := s"""
-      |import laserdisc._
-      |import laserdisc.auto._
-      |import laserdisc.all._
+      |import laserdisc.*
+      |import laserdisc.auto.*
+      |import laserdisc.all.*
       |""".stripMargin
   )
 

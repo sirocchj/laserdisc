@@ -22,7 +22,7 @@
 package laserdisc
 package refined.types
 
-import org.scalacheck.Prop._
+import org.scalacheck.Prop.*
 
 final class DbIndexSuite extends BaseSpec {
   test("DbIndex fail to compile given out of range Int (< 0)") {

@@ -21,13 +21,10 @@
 
 package laserdisc
 
-import shapeless.ops.hlist.ToSized
-import shapeless.ops.sized.ToHList
-import shapeless.{DepFn2, Nat, Sized}
+import shapeless.DepFn2
 
 import scala.annotation.implicitNotFound
-import scala.collection.LinearSeq
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 trait ClientBase[F[_], Env] {
   def defaultTimeout: FiniteDuration = 20.seconds
@@ -43,22 +40,6 @@ trait ClientBase[F[_], Env] {
       implicit F: Functor[F],
       ev: Handler.Aux[F, Env, Protocol.Aux[A1] *: EmptyTuple, Maybe[A1] *: EmptyTuple]
   ): F[Maybe[A1]] = send(protocolA1, defaultTimeout)
-
-  final def send[CC[x] <: LinearSeq[x], A, N <: Nat, In <: Tuple, Out <: Tuple](
-      sizedSeq: Sized[CC[Protocol.Aux[A]], N],
-      timeout: FiniteDuration
-  )(
-      implicit F: Functor[F],
-      toHList: ToHList.Aux[CC[Protocol.Aux[A]], N, In],
-      ev0: Handler.Aux[F, Env, In, Out],
-      ev1: ToSized.Aux[Out, CC, Maybe[A], N]
-  ): F[Sized[CC[Maybe[A]], N]] = F.map(send(toHList(sizedSeq), timeout))(_.toSized)
-  final def send[CC[x] <: LinearSeq[x], A, N <: Nat, In <: Tuple, Out <: Tuple](sizedSeq: Sized[CC[Protocol.Aux[A]], N])(
-      implicit F: Functor[F],
-      toHList: ToHList.Aux[CC[Protocol.Aux[A]], N, In],
-      ev0: Handler.Aux[F, Env, In, Out],
-      ev1: ToSized.Aux[Out, CC, Maybe[A], N]
-  ): F[Sized[CC[Maybe[A]], N]] = send(sizedSeq, defaultTimeout)
 }
 
 trait Client[F[_], Env] extends ClientBase[F, Env] with ClientExt[F, Env]

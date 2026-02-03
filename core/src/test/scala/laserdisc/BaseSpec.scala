@@ -22,13 +22,13 @@
 package laserdisc
 
 import eu.timepit.refined.W
-import eu.timepit.refined.api._
+import eu.timepit.refined.api.*
 import eu.timepit.refined.generic.Equal
 import eu.timepit.refined.scalacheck.reftype.arbitraryRefType
 import eu.timepit.refined.scalacheck.{CollectionInstancesBinCompat1, NumericInstances, StringInstances}
 import munit.ScalaCheckSuite
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Gen._
+import org.scalacheck.Gen.*
 import org.scalacheck.{Arbitrary, Gen}
 
 import scala.Double.{MaxValue => DMax, MinValue => DMin, NaN}

@@ -25,9 +25,9 @@ package protocol
 import org.scalacheck.Prop.forAll
 
 final class ClusterPSpec extends BaseSpec with ClusterP {
-  import clustertypes._
+  import clustertypes.*
   import org.scalacheck.{Arbitrary, Gen}
-  import org.scalacheck.Gen._
+  import org.scalacheck.Gen.*
 
   private[this] implicit val clusterFailoverModeArb: Arbitrary[ClusterFailoverMode] = Arbitrary {
     Gen.oneOf(ClusterFailoverMode.force, ClusterFailoverMode.takeover)

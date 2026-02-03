@@ -30,7 +30,7 @@ import org.scalacheck.{Arbitrary, Cogen, Gen}
 
 final class ReadLawsCheck extends DisciplineSuite with LawsCheckSettings with Implicits {
 
-  import ReadInstances._
+  import ReadInstances.*
 
   checkAll("Read[Num, *]", MonadTests[Read[Num, *]].stackUnsafeMonad[Long, String, Long])
   checkAll("Monad[Read[Num, *]]", SerializableTests.serializable(Monad[Read[Num, *]]))

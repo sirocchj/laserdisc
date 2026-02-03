@@ -22,10 +22,10 @@
 package laserdisc
 package interop
 
-import io.circe._
-import cats.syntax.either._
-import cats.syntax.show._
-import io.circe.syntax._
+import io.circe.*
+import cats.syntax.either.*
+import cats.syntax.show.*
+import io.circe.syntax.*
 
 object circe {
   implicit final def encoderShow[A: Encoder]: Show[A]    = Show.instance(_.asJson.noSpaces)

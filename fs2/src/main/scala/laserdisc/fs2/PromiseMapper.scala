@@ -23,10 +23,10 @@ package laserdisc
 package fs2
 
 import cats.effect.kernel.{Deferred, Temporal}
-import cats.effect.syntax.temporal._
-import cats.syntax.flatMap._
-import cats.syntax.functor._
-import cats.syntax.monadError._
+import cats.effect.syntax.temporal.*
+import cats.syntax.flatMap.*
+import cats.syntax.functor.*
+import cats.syntax.monadError.*
 import shapeless.Poly1
 
 import scala.concurrent.TimeoutException

@@ -25,7 +25,7 @@ package protocol
 import java.nio.charset.StandardCharsets.UTF_8
 
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Gen._
+import org.scalacheck.Gen.*
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 import scodec.bits.BitVector
@@ -74,7 +74,7 @@ object RESPCodecsSpec {
 }
 
 final class RESPCodecsSpec extends BaseSpec {
-  import RESPCodecsSpec._
+  import RESPCodecsSpec.*
 
   private[this] val smallNumGen: Gen[Int]         = chooseNum(0, 20)
   private[this] val invalidProtocolGen: Gen[Char] = {

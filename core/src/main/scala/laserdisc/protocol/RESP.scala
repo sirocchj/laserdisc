@@ -297,7 +297,7 @@ sealed trait RESPCoproduct {
 
 sealed trait RESPFunctions extends EitherSyntax { this: RESPCodecs =>
 
-  import BitVectorDecoding._
+  import BitVectorDecoding.*
 
   private[this] final val readDiscriminator: BitVector => ((BitVector, BitVector) => String | State) => String | State =
     bits => f => bits.consumeThen(BitsInByte)(_.asLeft, f)

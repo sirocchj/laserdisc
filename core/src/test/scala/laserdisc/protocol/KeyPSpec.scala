@@ -25,7 +25,7 @@ package protocol
 import org.scalacheck.Prop.forAll
 
 abstract class KeyPSpec extends BaseSpec with KeyP {
-  import keytypes._
+  import keytypes.*
   import org.scalacheck.{Arbitrary, Gen}
   import org.scalacheck.Gen.const
 

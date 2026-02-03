@@ -23,14 +23,14 @@ package laserdisc
 
 import java.{lang => j}
 
-import eu.timepit.refined.api._
+import eu.timepit.refined.api.*
 import eu.timepit.refined.boolean.{And, Not, Or, True}
 import eu.timepit.refined.char.Whitespace
 import eu.timepit.refined.collection.{Forall, MaxSize, MinSize, NonEmpty}
 import eu.timepit.refined.generic.Equal
 import eu.timepit.refined.numeric.{Interval, NonNaN, NonNegative, Positive}
 import eu.timepit.refined.string.{IPv4, MatchesRegex}
-import eu.timepit.refined.types.net.PrivateNetworks._
+import eu.timepit.refined.types.net.PrivateNetworks.*
 
 import scala.annotation.nowarn
 

@@ -4,14 +4,14 @@ package parallel
 
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
-import laserdisc.auto._
+import laserdisc.auto.*
 import laserdisc.fs2.parallel.SetUpLaserdiscCatsBaseline.LaserdiscCatsBaselineSetUp
 import laserdisc.fs2.parallel.channels.ByteInByteOutChannel
 import laserdisc.fs2.parallel.runtime.BenchRuntime.createNewRuntime
 import laserdisc.fs2.parallel.testcases.TestCasesLaserdiscByteBaseline
 import log.effect.fs2.SyncLogWriter
 import log.effect.{LogLevels, LogWriter}
-import org.openjdk.jmh.annotations._
+import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 
 class LaserdiscCatsByteInByteOutBaselineBench() {

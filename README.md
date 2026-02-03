@@ -71,7 +71,7 @@ libraryDependecies += "io.laserdisc" %% "laserdisc-circe" % latestVersion
 then, to make use of them, at call site it should be sufficient to just:
 
 ```scala
-import laserdisc.interop.circe._
+import laserdisc.interop.circe.*
 ```
 
 *Note*: the derived `Show[A]` instance uses the most compact string representation
@@ -83,14 +83,14 @@ With a running Redis instance on `localhost:6379` try running the following:
 import cats.effect.{IO, IOApp}
 import log.effect.LogWriter
 import log.effect.fs2.SyncLogWriter
-import cats.syntax.flatMap._
+import cats.syntax.flatMap.*
 
 object Main extends IOApp.Simple {
 
-  import laserdisc._
-  import laserdisc.all._
-  import laserdisc.auto._
-  import laserdisc.fs2._
+  import laserdisc.*
+  import laserdisc.all.*
+  import laserdisc.auto.*
+  import laserdisc.fs2.*
 
   def redisTest(implicit log: LogWriter[IO]): IO[Unit] =
     RedisClient[IO].to("localhost", 6379).use { client =>

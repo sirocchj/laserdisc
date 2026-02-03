@@ -136,7 +136,7 @@ object SortedSetP {
 
 trait SortedSetBaseP {
   import SortedSetP.{Aggregate, Flag, LexRange, ScoreRange}
-  import auto._
+  import auto.*
   import shapeless.{:+:, CNil}
 
   private[this] final val zeroIsNone = RESPRead.instance(Read.numZeroIsNone[PosInt])

@@ -23,7 +23,7 @@ package laserdisc
 package protocol
 
 import shapeless.{Coproduct, Inl, Inr}
-import shapeless.ops.coproduct._
+import shapeless.ops.coproduct.*
 
 import scala.annotation.implicitNotFound
 
@@ -41,7 +41,7 @@ You should not need to define one manually, as one will be derived for you autom
 }
 
 object RESPRead {
-  import RESP._
+  import RESP.*
 
   final type Aux[Sub0, A] = RESPRead[A] { type Sub = Sub0 }
   final def apply[Sub, A](implicit instance: Aux[Sub, A]): Aux[Sub, A] = instance
