@@ -192,11 +192,12 @@ sealed trait RESPCodecs extends BitVectorSyntax {
     filtered(baseCodec, crlfTerminatedFrom(from))
 
   private[this] final val crlfTerminatedStringCodec: Codec[String] = crlfTerminatedCodec(utf8Codec)
-  private[this] final val crlfTerminatedLongCodec: Codec[Long]     = crlfTerminatedStringCodec.narrow(
-    s =>
+  private[this] final val crlfTerminatedLongCodec: Codec[Long]     = {
+    @inline def parseLong(s: String) =
       try Attempt.successful(j.Long.parseLong(s))
-      catch { case _: NumberFormatException => Attempt.failure(SErr(s"Expected long but found $s")) }, _.toString
-  )
+      catch { case _: NumberFormatException => Attempt.failure(SErr(s"Expected long but found $s")) }
+    crlfTerminatedStringCodec.narrow(parseLong(_), _.toString)
+  }
   private[this] final val strCodec: Codec[Str]      = crlfTerminatedStringCodec.xmap[Str](Str.apply, _.value)
   private[this] final val errCodec: Codec[Err]      = crlfTerminatedStringCodec.xmap[Err](Err.apply, _.message)
   private[this] final val numCodec: Codec[Num]      = crlfTerminatedLongCodec.xmap[Num](Num.apply, _.value)
