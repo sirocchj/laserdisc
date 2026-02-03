@@ -11,11 +11,11 @@ trait HashExtP { this: HashBaseP =>
 
   //HMGET
   final def hmget[A1](key: Key, field1: Key)(
-      implicit ev: Arr ==> (A1 *: EmptyTuple)
+      implicit ev: Read[Arr, (A1 *: EmptyTuple)]
   ): Protocol.Aux[A1] =
     hmget[A1 *: EmptyTuple](key, OneOrMoreKeys.unsafeFrom(field1 :: Nil)).map(_.head)
   [2..21#final def hmget[[#A1#]](key: Key, [#field1: Key#])(
-      implicit ev##0: Arr ==> ([#A1# *: ] *: EmptyTuple),
+      implicit ev##0: Read[Arr, ([#A1# *: ] *: EmptyTuple)],
       ev##1: Tupler.Aux[[#A1# *: ] *: EmptyTuple, ([#A1#])]
   ): Protocol.Aux[([#A1#])] =
     hmget[[#A1# *: ] *: EmptyTuple](key, OneOrMoreKeys.unsafeFrom([#field1# :: ] :: Nil)).map(_.tupled)#

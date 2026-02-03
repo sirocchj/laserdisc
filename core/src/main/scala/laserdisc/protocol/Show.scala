@@ -59,7 +59,7 @@ object Show extends ShowInstances {
 }
 
 private[protocol] sealed trait ShowInstances {
-  private[this] final val refinedDoubleCases: PartialFunction[Refined[Double, _], String] = {
+  private[this] final val refinedDoubleCases: PartialFunction[Refined[Double, ?], String] = {
     case d if d.value == Double.NegativeInfinity => "-inf"
     case d if d.value == Double.PositiveInfinity => "+inf"
     case d                                       => d.value.toString

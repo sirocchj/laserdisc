@@ -58,7 +58,7 @@ object RESPRead {
         case str: Str   => Inr(Inr(Inr(Inr(Inr(Inr(Inl(str)))))))
       }
 
-  sealed abstract class DefaultRESPRead[A <: Coproduct, B, Rest <: Coproduct](R: A ==> B)(
+  sealed abstract class DefaultRESPRead[A <: Coproduct, B, Rest <: Coproduct](R: Read[A, B])(
       implicit ev0: Basis.Aux[RESPCoproduct, A, Rest],
       ev1: Selector[Rest, Err]
   ) extends RESPRead[B] {
@@ -76,13 +76,13 @@ object RESPRead {
       }
   }
 
-  final def instance[A <: Coproduct, B, Rest <: Coproduct](R: A ==> B)(
+  final def instance[A <: Coproduct, B, Rest <: Coproduct](R: Read[A, B])(
       implicit ev0: Basis.Aux[RESPCoproduct, A, Rest],
       ev1: Selector[Rest, Err]
   ): RESPRead.Aux[A, B] = new DefaultRESPRead(R) {}
 
   implicit final def derive[A <: Coproduct, B, Rest <: Coproduct](
-      implicit R: A ==> B,
+      implicit R: Read[A, B],
       basis: Basis.Aux[RESPCoproduct, A, Rest],
       selector: Selector[Rest, Err]
   ): RESPRead.Aux[A, B] = new DefaultRESPRead(R) {}

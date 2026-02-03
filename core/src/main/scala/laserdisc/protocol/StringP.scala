@@ -32,7 +32,7 @@ object StringP {
       case `set`   => "1"
       case `unset` => "0"
     }
-    implicit val num2BitRead: Num ==> Bit = Read[Num, Boolean].map(flag => if (flag) set else unset)
+    implicit val num2BitRead: Read[Num, Bit] = Read[Num, Boolean].map(flag => if (flag) set else unset)
   }
 
   sealed trait Bitwise
@@ -86,7 +86,7 @@ object StringP {
 
   final class PartiallyAppliedGetSet[A](private val dummy: Boolean) extends AnyVal {
     import shapeless.{:+:, CNil}
-    def apply[B: Show](key: Key, value: B)(implicit ev: Bulk ==> A): Protocol.Aux[Option[A]] =
+    def apply[B: Show](key: Key, value: B)(implicit ev: Read[Bulk, A]): Protocol.Aux[Option[A]] =
       Protocol("GETSET", key *: value *: EmptyTuple).asC[Bulk :+: NullBulk :+: CNil, Option[A]]
   }
 }
@@ -124,40 +124,40 @@ trait StringBaseP {
   final def bitpos(key: Key, bit: Bit, start: Index, end: Index): Protocol.Aux[Option[NonNegInt]] =
     Protocol("BITPOS", key *: bit *: start *: end *: EmptyTuple).using(minusOneIsNone)
 
-  final def decr[A: Num ==> *](key: Key): Protocol.Aux[A] = Protocol("DECR", key).as[Num, A]
+  final def decr[A: Read[Num, _]](key: Key): Protocol.Aux[A] = Protocol("DECR", key).as[Num, A]
 
   // TODO verify ok to limit DECRBY to only positive values, REDIS happily accepts 0 and negatives and x + (-decrement)
-  final def decrby[A: Num ==> *](key: Key, decrement: PosLong): Protocol.Aux[A] =
+  final def decrby[A: Read[Num, _]](key: Key, decrement: PosLong): Protocol.Aux[A] =
     Protocol("DECRBY", key *: decrement *: EmptyTuple).as[Num, A]
 
-  final def get[A: Bulk ==> *](key: Key): Protocol.Aux[Option[A]] = Protocol("GET", key).opt[GenBulk].as[A]
+  final def get[A: Read[Bulk, _]](key: Key): Protocol.Aux[Option[A]] = Protocol("GET", key).opt[GenBulk].as[A]
 
   final def getbit(key: Key, offset: PosLong): Protocol.Aux[Bit] = Protocol("GETBIT", key *: offset *: EmptyTuple).as[Num, Bit]
 
-  final def getrange[A: Bulk ==> *](key: Key, start: Index, end: Index): Protocol.Aux[A] =
+  final def getrange[A: Read[Bulk, _]](key: Key, start: Index, end: Index): Protocol.Aux[A] =
     Protocol("GETRANGE", key *: start *: end *: EmptyTuple).as[Bulk, A]
 
   final def getset[A]: PartiallyAppliedGetSet[A] = new PartiallyAppliedGetSet[A](false)
 
-  final def incr[A: Num ==> *](key: Key): Protocol.Aux[A] = Protocol("INCR", key).as[Num, A]
+  final def incr[A: Read[Num, _]](key: Key): Protocol.Aux[A] = Protocol("INCR", key).as[Num, A]
 
   // TODO verify ok to limit INCRBY to only positive values, REDIS happily accepts 0 and negatives
-  final def incrby[A: Num ==> *](key: Key, increment: PosLong): Protocol.Aux[A] =
+  final def incrby[A: Read[Num, _]](key: Key, increment: PosLong): Protocol.Aux[A] =
     Protocol("INCRBY", key *: increment *: EmptyTuple).as[Num, A]
 
   final def incrbyfloat(key: Key, increment: NonZeroDouble): Protocol.Aux[Double] =
     Protocol("INCRBYFLOAT", key *: increment *: EmptyTuple).as[Bulk, Double]
 
-  final def mget[A: Arr ==> *](keys: OneOrMoreKeys): Protocol.Aux[A] = Protocol("MGET", keys.value).as[Arr, A]
+  final def mget[A: Read[Arr, _]](keys: OneOrMoreKeys): Protocol.Aux[A] = Protocol("MGET", keys.value).as[Arr, A]
 
-  final def mset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[OK] =
+  final def mset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[_, (Key, ?)]](l: L): Protocol.Aux[OK] =
     Protocol("MSET", l).as[Str, OK]
-  final def mset[P <: Product: RESPParamWrite: <:!<[EmptyTuple, *]](product: P): Protocol.Aux[OK] = Protocol("MSET", product).as[Str, OK]
+  final def mset[P <: Product: RESPParamWrite: <:!<[EmptyTuple, _]](product: P): Protocol.Aux[OK] = Protocol("MSET", product).as[Str, OK]
   final def mset[A: Show](values: OneOrMore[(Key, A)]): Protocol.Aux[OK] = Protocol("MSET", values.value).as[Str, OK]
 
-  final def msetnx[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[Boolean] =
+  final def msetnx[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[_, (Key, ?)]](l: L): Protocol.Aux[Boolean] =
     Protocol("MSETNX", l).as[Num, Boolean]
-  final def msetnx[P <: Product: RESPParamWrite: <:!<[EmptyTuple, *]](product: P): Protocol.Aux[Boolean] =
+  final def msetnx[P <: Product: RESPParamWrite: <:!<[EmptyTuple, _]](product: P): Protocol.Aux[Boolean] =
     Protocol("MSETNX", product).as[Num, Boolean]
   final def msetnx[A: Show](values: OneOrMore[(Key, A)]): Protocol.Aux[Boolean] =
     Protocol("MSETNX", values.value).as[Num, Boolean]

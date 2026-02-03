@@ -96,8 +96,15 @@ def laserdiscCrossModule(path: String) = {
       name := s"laserdisc-$namePartial",
       scalacOptions ++= {
         CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, major)) if major >= 13 => Seq("-Wconf:cat=unused-nowarn:s")
-          case _                               => Seq.empty
+          case Some((2, 12)) => Seq("-P:kind-projector:underscore-placeholders")
+          case Some((2, 13)) => Seq("-Wconf:cat=unused-nowarn:s", "-P:kind-projector:underscore-placeholders")
+          case _             => Seq("-Ykind-projector:underscores")
+        }
+      },
+      scalacOptions --= {
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((3, _)) => Seq("-Ykind-projector")
+          case _            => Seq.empty
         }
       }
     )

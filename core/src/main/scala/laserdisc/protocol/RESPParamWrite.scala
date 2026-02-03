@@ -88,7 +88,7 @@ private[protocol] sealed trait RESPParamWriteInstances2 {
       implicit gen: LabelledGeneric.Aux[P, L],
       @nowarn ev0: Length.Aux[L, N],
       @nowarn ev1: N >= _1,
-      @nowarn ev2: LUBConstraint[L, FieldType[_, _]],
+      @nowarn ev2: LUBConstraint[L, FieldType[?, ?]],
       rpw: RESPParamWrite[L]
   ): RESPParamWrite[P] = rpw.contramap(gen.to)
 }

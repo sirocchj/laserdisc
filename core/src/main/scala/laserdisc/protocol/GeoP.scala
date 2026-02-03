@@ -25,7 +25,7 @@ package protocol
 object GeoP {
   final case class Coordinates(latitude: Latitude, longitude: Longitude)
   object Coordinates {
-    implicit final val coordinatesRead: Arr ==> Coordinates = Read.instance {
+    implicit final val coordinatesRead: Read[Arr, Coordinates] = Read.instance {
       case Arr(Bulk(ToDouble(Longitude(long))) +: Bulk(ToDouble(Latitude(lat))) +: Seq()) => Right(Coordinates(lat, long))
       case Arr(other) => Left(RESPDecErr(s"Unexpected coordinates encoding. Expected [longitude, latitude] but was $other"))
     }
@@ -41,12 +41,12 @@ object GeoP {
   final case class KeyDistanceAndHash(key: Key, distance: NonNegDouble, hash: NonNegLong)
   final case class KeyCoordinatesDistanceAndHash(key: Key, coordinates: Coordinates, distance: NonNegDouble, hash: NonNegLong)
 
-  sealed trait RadiusMode { type Res; def params: List[String]; def r: Arr ==> Res }
+  sealed trait RadiusMode { type Res; def params: List[String]; def r: Read[Arr, Res] }
   object RadiusMode       {
     object coordinates extends RadiusMode {
       override final type Res = KeyAndCoordinates
       override final val params: List[String] = List("WITHCOORD")
-      override final val r: Arr ==> Res       = radiusModeCoordinatesRead
+      override final val r: Read[Arr, Res]    = radiusModeCoordinatesRead
 
       def &(d: distance.type): coordinatesAndDistance.type = { val _ = d; coordinatesAndDistance }
       def &(h: hash.type): coordinatesAndHash.type         = { val _ = h; coordinatesAndHash }
@@ -54,7 +54,7 @@ object GeoP {
     object distance extends RadiusMode {
       override final type Res = KeyAndDistance
       override final val params: List[String] = List("WITHDIST")
-      override final val r: Arr ==> Res       = radiusModeDistanceRead
+      override final val r: Read[Arr, Res]    = radiusModeDistanceRead
 
       def &(c: coordinates.type): coordinatesAndDistance.type = { val _ = c; coordinatesAndDistance }
       def &(h: hash.type): distanceAndHash.type               = { val _ = h; distanceAndHash }
@@ -62,7 +62,7 @@ object GeoP {
     object hash extends RadiusMode {
       override final type Res = KeyAndHash
       override final val params: List[String] = List("WITHHASH")
-      override final val r: Arr ==> Res       = radiusModeHashRead
+      override final val r: Read[Arr, Res]    = radiusModeHashRead
 
       def &(c: coordinates.type): coordinatesAndHash.type = { val _ = c; coordinatesAndHash }
       def &(c: distance.type): distanceAndHash.type       = { val _ = c; distanceAndHash }
@@ -70,28 +70,28 @@ object GeoP {
     object coordinatesAndDistance extends RadiusMode {
       override final type Res = KeyCoordinatesAndDistance
       override final val params: List[String] = List("WITHCOORD", "WITHDIST")
-      override final val r: Arr ==> Res       = radiusModeCoordinatesAndDistanceRead
+      override final val r: Read[Arr, Res]    = radiusModeCoordinatesAndDistanceRead
 
       def &(h: hash.type): all.type = { val _ = h; all }
     }
     object coordinatesAndHash extends RadiusMode {
       override final type Res = KeyCoordinatesAndHash
       override final val params: List[String] = List("WITHCOORD", "WITHHASH")
-      override final val r: Arr ==> Res       = radiusModeCoordinatesAndHashRead
+      override final val r: Read[Arr, Res]    = radiusModeCoordinatesAndHashRead
 
       def &(d: distance.type): all.type = { val _ = d; all }
     }
     object distanceAndHash extends RadiusMode {
       override final type Res = KeyDistanceAndHash
       override final val params: List[String] = List("WITHDIST", "WITHHASH")
-      override final val r: Arr ==> Res       = radiusModeDistanceAndHashRead
+      override final val r: Read[Arr, Res]    = radiusModeDistanceAndHashRead
 
       def &(c: coordinates.type): all.type = { val _ = c; all }
     }
     object all extends RadiusMode {
       override final type Res = KeyCoordinatesDistanceAndHash
       override final val params: List[String] = List("WITHCOORD", "WITHDIST", "WITHHASH")
-      override final val r: Arr ==> Res       = radiusModeAllRead
+      override final val r: Read[Arr, Res]    = radiusModeAllRead
     }
   }
 
@@ -119,20 +119,20 @@ object GeoP {
     }
   }
 
-  implicit final val radiusModeCoordinatesRead: Arr ==> RadiusMode.coordinates.Res = Read.instance {
+  implicit final val radiusModeCoordinatesRead: Read[Arr, RadiusMode.coordinates.Res] = Read.instance {
     case Arr(Bulk(Key(k)) +: Arr(Bulk(ToDouble(Longitude(long))) +: Bulk(ToDouble(Latitude(lat))) +: Seq()) +: Seq()) =>
       Right(KeyAndCoordinates(k, Coordinates(lat, long)))
     case Arr(other) => Left(RESPDecErr(s"Unexpected radius mode encoding. Expected [key, [longitude, latitude]] but was $other"))
   }
-  implicit final val radiusModeDistanceRead: Arr ==> RadiusMode.distance.Res = Read.instance {
+  implicit final val radiusModeDistanceRead: Read[Arr, RadiusMode.distance.Res] = Read.instance {
     case Arr(Bulk(Key(k)) +: Bulk(ToDouble(NonNegDouble(d))) +: Seq()) => Right(KeyAndDistance(k, d))
     case Arr(other) => Left(RESPDecErr(s"Unexpected radius mode encoding. Expected [key, distance] but was $other"))
   }
-  implicit final val radiusModeHashRead: Arr ==> RadiusMode.hash.Res = Read.instance {
+  implicit final val radiusModeHashRead: Read[Arr, RadiusMode.hash.Res] = Read.instance {
     case Arr(Bulk(Key(k)) +: Num(NonNegLong(l)) +: Seq()) => Right(KeyAndHash(k, l))
     case Arr(other) => Left(RESPDecErr(s"Unexpected radius mode encoding. Expected [key, hash] but was $other"))
   }
-  implicit final val radiusModeCoordinatesAndDistanceRead: Arr ==> RadiusMode.coordinatesAndDistance.Res = Read.instance {
+  implicit final val radiusModeCoordinatesAndDistanceRead: Read[Arr, RadiusMode.coordinatesAndDistance.Res] = Read.instance {
     case Arr(
           Bulk(Key(k)) +: Bulk(ToDouble(NonNegDouble(d))) +:
           Arr(Bulk(ToDouble(Longitude(long))) +: Bulk(ToDouble(Latitude(lat))) +: Seq()) +: Seq()
@@ -143,7 +143,7 @@ object GeoP {
         RESPDecErr(s"Unexpected encoding for key coordinates and distance. Expected [key, distance, [longitude, latitude]] but was $other")
       )
   }
-  implicit final val radiusModeCoordinatesAndHashRead: Arr ==> RadiusMode.coordinatesAndHash.Res = Read.instance {
+  implicit final val radiusModeCoordinatesAndHashRead: Read[Arr, RadiusMode.coordinatesAndHash.Res] = Read.instance {
     case Arr(
           Bulk(Key(k)) +: Num(NonNegLong(l)) +:
           Arr(Bulk(ToDouble(Longitude(long))) +: Bulk(ToDouble(Latitude(lat))) +: Seq()) +: Seq()
@@ -152,11 +152,11 @@ object GeoP {
     case Arr(other) =>
       Left(RESPDecErr(s"Unexpected encoding for key coordinates and hash. Expected [key, hash, [longitude, latitude]] but was $other"))
   }
-  implicit final val radiusModeDistanceAndHashRead: Arr ==> RadiusMode.distanceAndHash.Res = Read.instance {
+  implicit final val radiusModeDistanceAndHashRead: Read[Arr, RadiusMode.distanceAndHash.Res] = Read.instance {
     case Arr(Bulk(Key(k)) +: Bulk(ToDouble(NonNegDouble(d))) +: Num(NonNegLong(l)) +: Seq()) => Right(KeyDistanceAndHash(k, d, l))
     case Arr(other) => Left(RESPDecErr(s"Unexpected encoding for key coordinates and hash. Expected [key, distance, hash] but was $other"))
   }
-  implicit final val radiusModeAllRead: Arr ==> RadiusMode.all.Res = Read.instance {
+  implicit final val radiusModeAllRead: Read[Arr, RadiusMode.all.Res] = Read.instance {
     case Arr(
           Bulk(Key(k)) +: Bulk(ToDouble(NonNegDouble(d))) +: Num(NonNegLong(l)) +:
           Arr(Bulk(ToDouble(Longitude(long))) +: Bulk(ToDouble(Latitude(lat))) +: Seq()) +: Seq()
@@ -236,12 +236,12 @@ trait GeoBaseP {
     Protocol("GEORADIUS", key *: coordinates.longitude *: coordinates.latitude *: radius *: unit *: "COUNT" *: limit *: sort *: EmptyTuple)
       .as[Arr, Seq[Key]]
   final def georadius(key: Key, coordinates: GeoCoordinates, radius: NonNegDouble, unit: GeoUnit, mode: GeoRadiusMode)(
-      implicit ev: Arr ==> mode.Res
+      implicit ev: Read[Arr, mode.Res]
   ): Protocol.Aux[Seq[mode.Res]] =
     Protocol("GEORADIUS", key *: coordinates.longitude *: coordinates.latitude *: radius *: unit *: mode.params *: EmptyTuple)
       .as[Arr, Seq[mode.Res]]
   final def georadius(key: Key, coordinates: GeoCoordinates, radius: NonNegDouble, unit: GeoUnit, limit: PosInt, mode: GeoRadiusMode)(
-      implicit ev: Arr ==> mode.Res
+      implicit ev: Read[Arr, mode.Res]
   ): Protocol.Aux[Seq[mode.Res]] =
     Protocol(
       "GEORADIUS",
@@ -249,7 +249,7 @@ trait GeoBaseP {
     )
       .as[Arr, Seq[mode.Res]]
   final def georadius(key: Key, coordinates: GeoCoordinates, radius: NonNegDouble, unit: GeoUnit, sort: Direction, mode: GeoRadiusMode)(
-      implicit ev: Arr ==> mode.Res
+      implicit ev: Read[Arr, mode.Res]
   ): Protocol.Aux[Seq[mode.Res]] =
     Protocol("GEORADIUS", key *: coordinates.longitude *: coordinates.latitude *: radius *: unit *: sort *: mode.params *: EmptyTuple)
       .as[Arr, Seq[mode.Res]]
@@ -261,7 +261,7 @@ trait GeoBaseP {
       limit: PosInt,
       sort: Direction,
       mode: GeoRadiusMode
-  )(implicit ev: Arr ==> mode.Res): Protocol.Aux[Seq[mode.Res]] =
+  )(implicit ev: Read[Arr, mode.Res]): Protocol.Aux[Seq[mode.Res]] =
     Protocol(
       "GEORADIUS",
       key *: coordinates.longitude *: coordinates.latitude *: radius *: unit *: "COUNT" *: limit *: sort *: mode.params *: EmptyTuple
@@ -319,19 +319,19 @@ trait GeoBaseP {
   final def georadius(key: Key, member: Key, radius: NonNegDouble, unit: GeoUnit, limit: PosInt, sort: Direction): Protocol.Aux[Seq[Key]] =
     Protocol("GEORADIUSBYMEMBER", key *: member *: radius *: unit *: "COUNT" *: limit *: sort *: EmptyTuple).as[Arr, Seq[Key]]
   final def georadius(key: Key, member: Key, radius: NonNegDouble, unit: GeoUnit, mode: GeoRadiusMode)(
-      implicit ev: Arr ==> mode.Res
+      implicit ev: Read[Arr, mode.Res]
   ): Protocol.Aux[Seq[mode.Res]] =
     Protocol("GEORADIUSBYMEMBER", key *: member *: radius *: unit *: mode.params *: EmptyTuple).as[Arr, Seq[mode.Res]]
   final def georadius(key: Key, member: Key, radius: NonNegDouble, unit: GeoUnit, limit: PosInt, mode: GeoRadiusMode)(
-      implicit ev: Arr ==> mode.Res
+      implicit ev: Read[Arr, mode.Res]
   ): Protocol.Aux[Seq[mode.Res]] =
     Protocol("GEORADIUSBYMEMBER", key *: member *: radius *: unit *: "COUNT" *: limit *: mode.params *: EmptyTuple).as[Arr, Seq[mode.Res]]
   final def georadius(key: Key, member: Key, radius: NonNegDouble, unit: GeoUnit, sort: Direction, mode: GeoRadiusMode)(
-      implicit ev: Arr ==> mode.Res
+      implicit ev: Read[Arr, mode.Res]
   ): Protocol.Aux[Seq[mode.Res]] =
     Protocol("GEORADIUSBYMEMBER", key *: member *: radius *: unit *: sort *: mode.params *: EmptyTuple).as[Arr, Seq[mode.Res]]
   final def georadius(key: Key, member: Key, radius: NonNegDouble, unit: GeoUnit, limit: PosInt, sort: Direction, mode: GeoRadiusMode)(
-      implicit ev: Arr ==> mode.Res
+      implicit ev: Read[Arr, mode.Res]
   ): Protocol.Aux[Seq[mode.Res]] =
     Protocol("GEORADIUSBYMEMBER", key *: member *: radius *: unit *: "COUNT" *: limit *: sort *: mode.params *: EmptyTuple)
       .as[Arr, Seq[mode.Res]]
@@ -396,19 +396,19 @@ trait GeoBaseP {
       )
         .as[Arr, Seq[Key]]
     final def georadius(key: Key, coordinates: GeoCoordinates, radius: NonNegDouble, unit: GeoUnit, mode: GeoRadiusMode)(
-        implicit ev: Arr ==> mode.Res
+        implicit ev: Read[Arr, mode.Res]
     ): Protocol.Aux[Seq[mode.Res]] =
       Protocol("GEORADIUS_RO", key *: coordinates.longitude *: coordinates.latitude *: radius *: unit *: mode.params *: EmptyTuple)
         .as[Arr, Seq[mode.Res]]
     final def georadius(key: Key, coordinates: GeoCoordinates, radius: NonNegDouble, unit: GeoUnit, limit: PosInt, mode: GeoRadiusMode)(
-        implicit ev: Arr ==> mode.Res
+        implicit ev: Read[Arr, mode.Res]
     ): Protocol.Aux[Seq[mode.Res]] =
       Protocol(
         "GEORADIUS_RO",
         key *: coordinates.longitude *: coordinates.latitude *: radius *: unit *: "COUNT" *: limit *: mode.params *: EmptyTuple
       ).as[Arr, Seq[mode.Res]]
     final def georadius(key: Key, coordinates: GeoCoordinates, radius: NonNegDouble, unit: GeoUnit, sort: Direction, mode: GeoRadiusMode)(
-        implicit ev: Arr ==> mode.Res
+        implicit ev: Read[Arr, mode.Res]
     ): Protocol.Aux[Seq[mode.Res]] =
       Protocol("GEORADIUS_RO", key *: coordinates.longitude *: coordinates.latitude *: radius *: unit *: sort *: mode.params *: EmptyTuple)
         .as[Arr, Seq[mode.Res]]
@@ -420,7 +420,7 @@ trait GeoBaseP {
         limit: PosInt,
         sort: Direction,
         mode: GeoRadiusMode
-    )(implicit ev: Arr ==> mode.Res): Protocol.Aux[Seq[mode.Res]] =
+    )(implicit ev: Read[Arr, mode.Res]): Protocol.Aux[Seq[mode.Res]] =
       Protocol(
         "GEORADIUS_RO",
         key *: coordinates.longitude *: coordinates.latitude *: radius *: unit *: "COUNT" *: limit *: sort *: mode.params *: EmptyTuple
@@ -441,20 +441,20 @@ trait GeoBaseP {
     ): Protocol.Aux[Seq[Key]] =
       Protocol("GEORADIUSBYMEMBER_RO", key *: member *: radius *: unit *: "COUNT" *: limit *: sort *: EmptyTuple).as[Arr, Seq[Key]]
     final def georadius(key: Key, member: Key, radius: NonNegDouble, unit: GeoUnit, mode: GeoRadiusMode)(
-        implicit ev: Arr ==> mode.Res
+        implicit ev: Read[Arr, mode.Res]
     ): Protocol.Aux[Seq[mode.Res]] =
       Protocol("GEORADIUSBYMEMBER_RO", key *: member *: radius *: unit *: mode.params *: EmptyTuple).as[Arr, Seq[mode.Res]]
     final def georadius(key: Key, member: Key, radius: NonNegDouble, unit: GeoUnit, limit: PosInt, mode: GeoRadiusMode)(
-        implicit ev: Arr ==> mode.Res
+        implicit ev: Read[Arr, mode.Res]
     ): Protocol.Aux[Seq[mode.Res]] =
       Protocol("GEORADIUSBYMEMBER_RO", key *: member *: radius *: unit *: "COUNT" *: limit *: mode.params *: EmptyTuple)
         .as[Arr, Seq[mode.Res]]
     final def georadius(key: Key, member: Key, radius: NonNegDouble, unit: GeoUnit, sort: Direction, mode: GeoRadiusMode)(
-        implicit ev: Arr ==> mode.Res
+        implicit ev: Read[Arr, mode.Res]
     ): Protocol.Aux[Seq[mode.Res]] =
       Protocol("GEORADIUSBYMEMBER_RO", key *: member *: radius *: unit *: sort *: mode.params *: EmptyTuple).as[Arr, Seq[mode.Res]]
     final def georadius(key: Key, member: Key, radius: NonNegDouble, unit: GeoUnit, limit: PosInt, sort: Direction, mode: GeoRadiusMode)(
-        implicit ev: Arr ==> mode.Res
+        implicit ev: Read[Arr, mode.Res]
     ): Protocol.Aux[Seq[mode.Res]] =
       Protocol("GEORADIUSBYMEMBER_RO", key *: member *: radius *: unit *: "COUNT" *: limit *: sort *: mode.params *: EmptyTuple)
         .as[Arr, Seq[mode.Res]]

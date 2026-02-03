@@ -33,7 +33,7 @@ object KeyP {
     case object hashtable  extends Encoding
     case object skiplist   extends Encoding
 
-    implicit final val bulk2EncodingRead: Bulk ==> Encoding = Read.instance {
+    implicit final val bulk2EncodingRead: Read[Bulk, Encoding] = Read.instance {
       case Bulk("raw")        => Right(raw)
       case Bulk("int")        => Right(int)
       case Bulk("ziplist")    => Right(ziplist)
@@ -84,7 +84,7 @@ object KeyP {
     case object NoExpire                          extends TTLResponse
     final case class ExpireAfter(ttl: NonNegLong) extends TTLResponse
 
-    implicit final val num2TTLResponseRead: Num ==> TTLResponse = Read.instance {
+    implicit final val num2TTLResponseRead: Read[Num, TTLResponse] = Read.instance {
       case Num(-2)          => Right(NoKey)
       case Num(-1)          => Right(NoExpire)
       case Num(l) if l >= 0 => Right(ExpireAfter(NonNegLong.unsafeFrom(l)))
@@ -115,22 +115,22 @@ trait KeyBaseP {
 
   import keytypes.*
 
-  private[this] implicit final val str2NOKEYOrOK: Str ==> (NOKEY | OK) = Read.instance {
+  private[this] implicit final val str2NOKEYOrOK: Read[Str, (NOKEY | OK)] = Read.instance {
     case Str("NOKEY") => Right(Left(NOKEY))
     case Str("OK")    => Right(Right(OK))
-    case Str(other)   => Left(RESPDecErr(s"Unexpected string for Str ==> (NOKEY | OK). Was $other"))
+    case Str(other)   => Left(RESPDecErr(s"Unexpected string for Read[Str, (NOKEY | OK)]. Was $other"))
   }
 
   private[this] final val zeroIsNone = RESPRead.instance(Read.numZeroIsNone[PosInt])
 
-  private[this] implicit final val str2OptionType: Str ==> Option[KeyType] = Read.instance {
+  private[this] implicit final val str2OptionType: Read[Str, Option[KeyType]] = Read.instance {
     case Str("string") => Right(Some(KeyType.string))
     case Str("list")   => Right(Some(KeyType.list))
     case Str("set")    => Right(Some(KeyType.set))
     case Str("zset")   => Right(Some(KeyType.zset))
     case Str("hash")   => Right(Some(KeyType.hash))
     case Str("none")   => Right(None)
-    case Str(other)    => Left(RESPDecErr(s"Unexpected string for Str ==> Option[KeyType]. Was $other"))
+    case Str(other)    => Left(RESPDecErr(s"Unexpected string for Read[Str, Option[KeyType]]. Was $other"))
   }
 
   final def del(keys: OneOrMoreKeys): Protocol.Aux[NonNegInt] = Protocol("DEL", keys.value).as[Num, NonNegInt]
@@ -225,12 +225,12 @@ trait KeyBaseP {
     Protocol("SCAN", cursor *: "MATCH" *: pattern *: "COUNT" *: count *: EmptyTuple).as[Arr, Scan[Key]]
 
   // FIXME sort has many more combinations
-  final def sort[A: Bulk ==> *](key: Key): Protocol.Aux[Seq[A]]                       = Protocol("SORT", key).as[Arr, Seq[A]]
-  final def sort[A: Bulk ==> *](key: Key, pattern: GlobPattern): Protocol.Aux[Seq[A]] =
+  final def sort[A: Read[Bulk, _]](key: Key): Protocol.Aux[Seq[A]]                       = Protocol("SORT", key).as[Arr, Seq[A]]
+  final def sort[A: Read[Bulk, _]](key: Key, pattern: GlobPattern): Protocol.Aux[Seq[A]] =
     Protocol("SORT", key *: "BY" *: pattern *: EmptyTuple).as[Arr, Seq[A]]
-  final def sort[A: Bulk ==> *](key: Key, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
+  final def sort[A: Read[Bulk, _]](key: Key, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
     Protocol("SORT", key *: "LIMIT" *: offset *: count *: EmptyTuple).as[Arr, Seq[A]]
-  final def sort[A: Bulk ==> *](key: Key, direction: Direction): Protocol.Aux[Seq[A]] =
+  final def sort[A: Read[Bulk, _]](key: Key, direction: Direction): Protocol.Aux[Seq[A]] =
     Protocol("SORT", key *: direction *: EmptyTuple).as[Arr, Seq[A]]
   final def sort(key: Key, destination: Key): Protocol.Aux[NonNegInt] =
     Protocol("SORT", key.value :: "STORE" :: destination.value :: Nil).as[Num, NonNegInt]

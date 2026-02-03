@@ -4,14 +4,14 @@ package parallel
 package adapters
 
 import _root_.fs2.{Chunk, Pipe, Pull, Stream}
-import cats.ApplicativeError
+import cats.ApplicativeThrow
 import laserdisc.protocol.*
 import scodec.Codec
 import scodec.bits.BitVector
 import scodec.stream.{StreamDecoder, StreamEncoder}
 
 private[parallel] object RespChannelAdapter {
-  def send[F[_]: ApplicativeError[*[_], Throwable]](socketWrite: Chunk[Byte] => F[Unit]): Pipe[F, RESP, Unit] = {
+  def send[F[_]: ApplicativeThrow](socketWrite: Chunk[Byte] => F[Unit]): Pipe[F, RESP, Unit] = {
     val streamEncoder = StreamEncoder.many(Codec[RESP])
 
     _.through(streamEncoder.encode[F]).chunks
@@ -28,7 +28,7 @@ private[parallel] object RespChannelAdapter {
     ).evalMap(chunks => socketWrite(Chunk.array(chunks.foldLeft(BitVector.empty)(_ ++ _).toByteArray)))
   }
 
-  def receive[F[_]: ApplicativeError[*[_], Throwable]]: Pipe[F, Byte, RESP] = {
+  def receive[F[_]: ApplicativeThrow]: Pipe[F, Byte, RESP] = {
     val streamDecoder = StreamDecoder.many(Codec[RESP])
 
     def framing: Pipe[F, Byte, CompleteFrame] = {

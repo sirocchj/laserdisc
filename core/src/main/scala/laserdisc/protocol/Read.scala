@@ -80,10 +80,10 @@ object Read extends ReadInstances0 {
       case Inr(_)                           => absurd
     }
 
-  @inline final def numMinusOneIsNone[A: Read[Num, *]]: Read[Num :+: CNil, Option[A]] =
+  @inline final def numMinusOneIsNone[A: Read[Num, _]]: Read[Num :+: CNil, Option[A]] =
     lift2OptionWhen(_.value == -1L)
 
-  @inline final def numZeroIsNone[A: Read[Num, *]]: Read[Num :+: CNil, Option[A]] =
+  @inline final def numZeroIsNone[A: Read[Num, _]]: Read[Num :+: CNil, Option[A]] =
     lift2OptionWhen(_.value == 0L)
 }
 
@@ -142,18 +142,18 @@ trait ReadInstances1 extends EitherSyntax with ReadInstances2 {
   implicit final def arrOfBulk2Seq[A](implicit R: Read[Bulk, A]): Read[Arr, Seq[A]] = instance { case Arr(vector) =>
     vector.foldRight[RESPDecErr | (List[A], Int)](Right(Nil -> 0)) {
       case (R(Right(a)), Right((as0, asl))) => Right((a :: as0) -> (asl + 1))
-      case (R(Left(e)), Right((_, asl)))    => Left(RESPDecErr(s"Arr(Bulk) ==> Seq[A] error at element ${asl + 1}: ${e.message}"))
+      case (R(Left(e)), Right((_, asl)))    => Left(RESPDecErr(s"Read[Arr(Bulk), Seq[A]] error at element ${asl + 1}: ${e.message}"))
       case (other, Right((_, asl)))         =>
-        Left(RESPDecErr(s"Arr(Bulk) ==> Seq[A] error at element ${asl + 1}: Unexpected for Bulk. Was $other"))
+        Left(RESPDecErr(s"Read[Arr(Bulk), Seq[A]] error at element ${asl + 1}: Unexpected for Bulk. Was $other"))
       case (_, left) => left
     } map (_._1)
   }
   implicit final def arrOfArr2Seq[A](implicit R: Read[Arr, A]): Read[Arr, Seq[A]] = instance { case Arr(vector) =>
     vector.foldRight[RESPDecErr | (List[A], Int)](Right(Nil -> 0)) {
       case (R(Right(a)), Right((as0, asl))) => Right((a :: as0) -> (asl + 1))
-      case (R(Left(e)), Right((_, asl)))    => Left(RESPDecErr(s"Arr(Arr) ==> Seq[A] error at element ${asl + 1}: ${e.message}"))
+      case (R(Left(e)), Right((_, asl)))    => Left(RESPDecErr(s"Read[Arr(Arr), Seq[A]] error at element ${asl + 1}: ${e.message}"))
       case (other, Right((_, asl)))         =>
-        Left(RESPDecErr(s"Arr(Arr) ==> Seq[A] error at element ${asl + 1}: Unexpected for Arr. Was $other"))
+        Left(RESPDecErr(s"Read[Arr(Arr), Seq[A]] error at element ${asl + 1}: Unexpected for Arr. Was $other"))
       case (_, left) => left
     } map (_._1)
   }
@@ -161,9 +161,9 @@ trait ReadInstances1 extends EitherSyntax with ReadInstances2 {
     vector.foldRight[RESPDecErr | (List[Option[A]], Int)](Right(Nil -> 0)) {
       case (NullBulk, Right((as0, asl)))    => Right((None :: as0) -> (asl + 1))
       case (R(Right(a)), Right((as0, asl))) => Right((Some(a) :: as0) -> (asl + 1))
-      case (R(Left(e)), Right((_, asl)))    => Left(RESPDecErr(s"Arr(Bulk) ==> Seq[Option[A]] error at element ${asl + 1}: ${e.message}"))
+      case (R(Left(e)), Right((_, asl)))    => Left(RESPDecErr(s"Read[Arr(Bulk), Seq[Option[A]]] error at element ${asl + 1}: ${e.message}"))
       case (other, Right((_, asl)))         =>
-        Left(RESPDecErr(s"Arr(Bulk) ==> Seq[Option[A]] error at element ${asl + 1}: Unexpected for Bulk. Was $other"))
+        Left(RESPDecErr(s"Read[Arr(Bulk), Seq[Option[A]]] error at element ${asl + 1}: Unexpected for Bulk. Was $other"))
       case (_, left) => left
     } map (_._1)
   }
@@ -171,9 +171,9 @@ trait ReadInstances1 extends EitherSyntax with ReadInstances2 {
     vector.foldRight[RESPDecErr | (List[Option[A]], Int)](Right(Nil -> 0)) {
       case (NilArr, Right((as0, asl)))      => Right((None :: as0) -> (asl + 1))
       case (R(Right(a)), Right((as0, asl))) => Right((Some(a) :: as0) -> (asl + 1))
-      case (R(Left(e)), Right((_, asl)))    => Left(RESPDecErr(s"Arr(Arr) ==> Seq[Option[A]] error at element ${asl + 1}: ${e.message}"))
+      case (R(Left(e)), Right((_, asl)))    => Left(RESPDecErr(s"Read[Arr(Arr), Seq[Option[A]]] error at element ${asl + 1}: ${e.message}"))
       case (other, Right((_, asl)))         =>
-        Left(RESPDecErr(s"Arr(Arr) ==> Seq[Option[A]] error at element ${asl + 1}: Unexpected for Arr. Was $other"))
+        Left(RESPDecErr(s"Read[Arr(Arr), Seq[Option[A]]] error at element ${asl + 1}: Unexpected for Arr. Was $other"))
       case (_, left) => left
     } map (_._1)
   }
@@ -186,13 +186,13 @@ trait ReadInstances1 extends EitherSyntax with ReadInstances2 {
         case (RA(Right(a)) +: RB(Right(b)) +: Seq(), Right((abs0, absl))) =>
           Right(((a -> b) :: abs0) -> (absl + 1))
         case (RA(Left(ea)) +: _ +: Seq(), Right((_, absl))) =>
-          Left(RESPDecErr(s"Arr(Bulk) ==> Seq[(A, B)] error in the first element at pair ${absl + 1}: ${ea.message}"))
+          Left(RESPDecErr(s"Read[Arr(Bulk), Seq[(A, B)]] error in the first element at pair ${absl + 1}: ${ea.message}"))
         case (_ +: RA(Left(eb)) +: Seq(), Right((_, absl))) =>
-          Left(RESPDecErr(s"Arr(Bulk) ==> Seq[(A, B)] error in the second element at pair ${absl + 1}: ${eb.message}"))
+          Left(RESPDecErr(s"Read[Arr(Bulk), Seq[(A, B)]] error in the second element at pair ${absl + 1}: ${eb.message}"))
         case (otherA +: otherB +: Seq(), Right((_, absl))) =>
-          Left(RESPDecErr(s"Arr(Bulk) ==> Seq[(A, B)] error at element ${absl + 1}: Unexpected for A or B. Was ${(otherA, otherB)}"))
+          Left(RESPDecErr(s"Read[Arr(Bulk), Seq[(A, B)]] error at element ${absl + 1}: Unexpected for A or B. Was ${(otherA, otherB)}"))
         case (_ +: Seq(), Right(_)) =>
-          Left(RESPDecErr(s"Arr(Bulk) ==> Seq[(A, B)] error: uneven number of elements in Arr. Can't form pairs."))
+          Left(RESPDecErr(s"Read[Arr(Bulk), Seq[(A, B)]] error: uneven number of elements in Arr. Can't form pairs."))
         case (_, left) => left
       } map (_._1)
   }
@@ -201,11 +201,11 @@ trait ReadInstances1 extends EitherSyntax with ReadInstances2 {
       case (Bulk(Key(k)) +: Bulk(v) +: Seq(), Right((kvs, kvl))) =>
         Right((kvs + (k -> v)) -> (kvl + 1))
       case (Bulk(Key(_)) +: any +: Seq(), Right((_, kvl))) =>
-        Left(RESPDecErr(s"Arr ==> Map[Key, String] error in the value at pair ${kvl + 1}: $any is not Bulk(String)"))
+        Left(RESPDecErr(s"Read[Arr, Map][Key, String] error in the value at pair ${kvl + 1}: $any is not Bulk(String)"))
       case (any +: Bulk(_) +: Seq(), Right((_, kvl))) =>
-        Left(RESPDecErr(s"Arr ==> Map[Key, String] error in the key at pair ${kvl + 1}: $any is not Key(String)"))
+        Left(RESPDecErr(s"Read[Arr, Map][Key, String] error in the key at pair ${kvl + 1}: $any is not Key(String)"))
       case (_ +: Seq(), Right(_)) =>
-        Left(RESPDecErr(s"Arr ==> Map[Key, String] error: uneven number of elements in Arr. Can't form a Map."))
+        Left(RESPDecErr(s"Read[Arr, Map][Key, String] error: uneven number of elements in Arr. Can't form a Map."))
       case (_, left) => left
     } map (_._1)
   }
@@ -216,14 +216,14 @@ trait ReadInstances1 extends EitherSyntax with ReadInstances2 {
         case (Bulk(Key(k)) +: Bulk(v) +: Seq(), Right((kv, kvl))) =>
           Right((KV(k, v) :: kv) -> (kvl + 1))
         case (Bulk(Key(_)) +: any +: Seq(), Right((_, kvl))) =>
-          Left(RESPDecErr(s"Arr ==> ScanKV error in the value at pair ${kvl + 1}: $any is not Bulk(String)"))
+          Left(RESPDecErr(s"Read[Arr, ScanKV] error in the value at pair ${kvl + 1}: $any is not Bulk(String)"))
         case (any +: Bulk(_) +: Seq(), Right((_, kvl))) =>
-          Left(RESPDecErr(s"Arr ==> ScanKV error in the key at pair ${kvl + 1}: $any is not Key(String)"))
+          Left(RESPDecErr(s"Read[Arr, ScanKV] error in the key at pair ${kvl + 1}: $any is not Key(String)"))
         case (_ +: Seq(), Right(_)) =>
-          Left(RESPDecErr(s"Arr ==> ScanKV error: uneven number of elements in Arr. Can't form a KV[String]."))
+          Left(RESPDecErr(s"Read[Arr, ScanKV] error: uneven number of elements in Arr. Can't form a KV[String]."))
         case (_, left) => left
       } map (r => ScanKV(cursor, Some(r._1)))
-    case Arr(any) => Left(RESPDecErr(s"Arr ==> ScanKV error. $any is not a valid encoding for ScanKV"))
+    case Arr(any) => Left(RESPDecErr(s"Read[Arr, ScanKV] error. $any is not a valid encoding for ScanKV"))
   }
   implicit final def arr2KV[A](implicit R: Read[Bulk, A]): Read[Arr, KV[A]] = instancePF("Arr(KV[A])") {
     case Arr(Bulk(Key(k)) +: R(Right(a)) +: Seq()) => KV(k, a)
@@ -266,7 +266,7 @@ sealed trait ReadInstances2 {
       case Inr(_)           => None
       case Inl(_)           => absurd
     }
-  implicit final def liftSimpleToSum[A: <:!<[*, Coproduct], B](implicit R: Read[A, B]): Read[A :+: CNil, B] =
+  implicit final def liftSimpleToSum[A: <:!<[_, Coproduct], B](implicit R: Read[A, B]): Read[A :+: CNil, B] =
     Read.instance {
       case Inl(R(rb)) => rb
       case Inl(_)     => absurd

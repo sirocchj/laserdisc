@@ -4,7 +4,7 @@ package parallel
 package adapters
 
 import _root_.fs2.{Chunk, Pipe, Pull, Stream}
-import cats.ApplicativeError
+import cats.ApplicativeThrow
 import laserdisc.protocol.*
 import scodec.bits.BitVector
 
@@ -13,7 +13,7 @@ private[parallel] object BitVectorChannelAdapter {
     _.chunks
       .evalMap(chunks => socketWrite(Chunk.array(chunks.foldLeft(BitVector.empty)(_ ++ _).toByteArray)))
 
-  def receive[F[_]: ApplicativeError[*[_], Throwable]]: Pipe[F, Byte, BitVector] = {
+  def receive[F[_]: ApplicativeThrow]: Pipe[F, Byte, BitVector] = {
     def framing: Pipe[F, Byte, CompleteFrame] = {
       def loopScan(bytesIn: Stream[F, Byte], previous: RESPFrame): Pull[F, CompleteFrame, Unit] =
         bytesIn.pull.uncons.flatMap {

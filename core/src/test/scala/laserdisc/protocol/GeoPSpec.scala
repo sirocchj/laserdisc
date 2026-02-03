@@ -113,7 +113,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
       l <- arbitrary[NonNegLong]
     } yield GeoKeyCoordDistAndHash(k, c, d, l)
   }
-  private[this] implicit final val geoRadiusModeArb: Arbitrary[(GeoRadiusMode, List[_])] = Arbitrary {
+  private[this] implicit final val geoRadiusModeArb: Arbitrary[(GeoRadiusMode, List[?])] = Arbitrary {
     Gen.oneOf(
       listOf(geoKeyAndCoordArb.arbitrary).map(GeoRadiusMode.coordinates -> _),
       listOf(geoKeyAndDistArb.arbitrary).map(GeoRadiusMode.distance -> _),
@@ -132,7 +132,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
     )
   }
 
-  private[this] final val listToArr: List[_] => Arr = l =>
+  private[this] final val listToArr: List[?] => Arr = l =>
     Arr(l.collect {
       case GeoKeyAndCoord(k, GeoCoordinates(lat, long))               => Arr(Bulk(k), Arr(Bulk(long), Bulk(lat)))
       case GeoKeyAndDist(k, d)                                        => Arr(Bulk(k), Bulk(d))
@@ -253,7 +253,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using georadius roundtrips successfully given key, coordinates, radius, unit and radius mode") {
-    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = georadius(k, c, r, u, rm)
@@ -274,7 +274,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using georadius roundtrips successfully given key, coordinates, radius, unit, limit and radius mode") {
-    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, l: PosInt, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, l: PosInt, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = georadius(k, c, r, u, l, rm)
@@ -297,7 +297,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using georadius roundtrips successfully given key, coordinates, radius, unit, direction and radius mode") {
-    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, d: Direction, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, d: Direction, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = georadius(k, c, r, u, d, rm)
@@ -321,7 +321,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   property(
     "The Geo protocol using georadius roundtrips successfully given key, coordinates, radius, unit, limit, direction and radius mode"
   ) {
-    forAll { (input: (Key, GeoCoordinates, NonNegDouble, GeoUnit, PosInt, Direction), rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (input: (Key, GeoCoordinates, NonNegDouble, GeoUnit, PosInt, Direction), rmAndRes: (GeoRadiusMode, List[?])) =>
       val (k, c, r, u, l, d) = input
       val (rm, res)          = rmAndRes
       implicit val ev        = rm.r
@@ -491,7 +491,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using georadius roundtrips successfully given key, member, radius, unit and radius mode") {
-    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = georadius(k, m, r, u, rm)
@@ -511,7 +511,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using georadius roundtrips successfully given key, member, radius, unit, limit and radius mode") {
-    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, l: PosInt, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, l: PosInt, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = georadius(k, m, r, u, l, rm)
@@ -533,7 +533,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using georadius roundtrips successfully given key, member, radius, unit, direction and radius mode") {
-    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, d: Direction, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, d: Direction, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = georadius(k, m, r, u, d, rm)
@@ -554,7 +554,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using georadius roundtrips successfully given key, member, radius, unit, limit, direction and radius mode") {
-    forAll { (input: (Key, Key, NonNegDouble, GeoUnit, PosInt, Direction), rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (input: (Key, Key, NonNegDouble, GeoUnit, PosInt, Direction), rmAndRes: (GeoRadiusMode, List[?])) =>
       val (k, m, r, u, l, d) = input
       val (rm, res)          = rmAndRes
       implicit val ev        = rm.r
@@ -700,7 +700,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using ro.georadius roundtrips successfully given key, coordinates, radius, unit and radius mode") {
-    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = ro.georadius(k, c, r, u, rm)
@@ -721,7 +721,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using ro.georadius roundtrips successfully given key, coordinates, radius, unit, limit and radius mode") {
-    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, l: PosInt, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, l: PosInt, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = ro.georadius(k, c, r, u, l, rm)
@@ -744,7 +744,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using ro.georadius roundtrips successfully given key, coordinates, radius, unit, direction and radius mode") {
-    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, d: Direction, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, c: GeoCoordinates, r: NonNegDouble, u: GeoUnit, d: Direction, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = ro.georadius(k, c, r, u, d, rm)
@@ -768,7 +768,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   property(
     "The Geo protocol using ro.georadius roundtrips successfully given key, coordinates, radius, unit, limit, direction and radius mode"
   ) {
-    forAll { (input: (Key, GeoCoordinates, NonNegDouble, GeoUnit, PosInt, Direction), rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (input: (Key, GeoCoordinates, NonNegDouble, GeoUnit, PosInt, Direction), rmAndRes: (GeoRadiusMode, List[?])) =>
       val (k, c, r, u, l, d) = input
       val (rm, res)          = rmAndRes
       implicit val ev        = rm.r
@@ -849,7 +849,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using ro.georadius roundtrips successfully given key, member, radius, unit and radius mode") {
-    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = ro.georadius(k, m, r, u, rm)
@@ -869,7 +869,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using ro.georadius roundtrips successfully given key, member, radius, unit, limit and radius mode") {
-    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, l: PosInt, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, l: PosInt, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = ro.georadius(k, m, r, u, l, rm)
@@ -891,7 +891,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   }
 
   property("The Geo protocol using ro.georadius roundtrips successfully given key, member, radius, unit, direction and radius mode") {
-    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, d: Direction, rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (k: Key, m: Key, r: NonNegDouble, u: GeoUnit, d: Direction, rmAndRes: (GeoRadiusMode, List[?])) =>
       val (rm, res)   = rmAndRes
       implicit val ev = rm.r
       val protocol    = ro.georadius(k, m, r, u, d, rm)
@@ -914,7 +914,7 @@ abstract class GeoPSpec extends BaseSpec with GeoP {
   property(
     "The Geo protocol using ro.georadius roundtrips successfully given key, member, radius, unit, limit, direction and radius mode"
   ) {
-    forAll { (input: (Key, Key, NonNegDouble, GeoUnit, PosInt, Direction), rmAndRes: (GeoRadiusMode, List[_])) =>
+    forAll { (input: (Key, Key, NonNegDouble, GeoUnit, PosInt, Direction), rmAndRes: (GeoRadiusMode, List[?])) =>
       val (k, m, r, u, l, d) = input
       val (rm, res)          = rmAndRes
       implicit val ev        = rm.r

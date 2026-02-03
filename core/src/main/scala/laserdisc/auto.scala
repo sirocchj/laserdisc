@@ -25,7 +25,7 @@ import eu.timepit.refined.api.{RefType, Refined, Validate}
 import eu.timepit.refined.macros.RefineMacro
 
 object auto {
-  implicit def autoUnwrap[F[_, _], T](tp: F[T, _])(implicit rt: RefType[F]): T =
+  implicit def autoUnwrap[F[_, _], T](tp: F[T, ?])(implicit rt: RefType[F]): T =
     rt.unwrap(tp)
 
   implicit def autoRefine[T, P](t: T)(

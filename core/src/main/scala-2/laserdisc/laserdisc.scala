@@ -39,7 +39,7 @@ package object laserdisc {
   type EmptyTuple = shapeless.HNil
   @inline final val EmptyTuple: EmptyTuple = shapeless.HNil
 
-  type NonEmptyTuple       = shapeless.::[_, _]
+  type NonEmptyTuple       = shapeless.::[?, ?]
   type *:[+A, +B <: Tuple] = shapeless.::[A, B]
   @inline final val *: = shapeless.::
 
@@ -49,9 +49,6 @@ package object laserdisc {
 
   @implicitNotFound("Cannot prove that every element of ${L} is a subtype of ${A}")
   type LUBConstraint[L <: Tuple, A] = shapeless.LUBConstraint[L, A]
-  // sealed trait LUBConstraint[L <: Tuple, A] extends Serializable
-  // implicit final def lubConstraintShepelessDelegate[L <: Tuple, A](implicit ev: shapeless.LUBConstraint[L, A]): LUBConstraint[L, A] =
-  //   new LUBConstraint[L, A] {}
 
   // Basic type aliases
   final type |[+A, +B] = Either[A, B]
@@ -66,10 +63,13 @@ package object laserdisc {
   final type Num        = protocol.Num
   final type Str        = protocol.Str
   final type Protocol   = protocol.Protocol
-  final type ==>[A, B]  = protocol.Read[A, B]
+  final type Read[A, B] = protocol.Read[A, B]
   final type RESP       = protocol.RESP
   final type Show[A]    = protocol.Show[A]
   final type RESPDecErr = protocol.RESPDecErr
+
+  // Specialized type lambda
+  final type ReadArrToSeq[A] = Read[Arr, Seq[A]]
 
   // Object forwarders
   final val Arr        = protocol.Arr
@@ -252,18 +252,18 @@ package object laserdisc {
   private[laserdisc] implicit def nsubAmbig2[A, B >: A]: A <:!< B = absurd
 
   private[laserdisc] implicit final class WidenOps1[F[_], A](private val fa: F[A]) extends AnyVal {
-    def widen[AA: <:<[A, *]: =:!=[A, *]]: F[AA] = fa.asInstanceOf[F[AA]]
+    def widen[AA: <:<[A, _]: =:!=[A, _]]: F[AA] = fa.asInstanceOf[F[AA]]
   }
 
   private[laserdisc] implicit final class WidenOps2[F[_, _], A, B](private val fab: F[A, B]) extends AnyVal {
-    def widenLeft[AA: <:<[A, *]: =:!=[A, *]]: F[AA, B]                                    = fab.asInstanceOf[F[AA, B]]
-    def widenRight[BB: <:<[B, *]: =:!=[B, *]]: F[A, BB]                                   = fab.asInstanceOf[F[A, BB]]
+    def widenLeft[AA: <:<[A, _]: =:!=[A, _]]: F[AA, B]                                    = fab.asInstanceOf[F[AA, B]]
+    def widenRight[BB: <:<[B, _]: =:!=[B, _]]: F[A, BB]                                   = fab.asInstanceOf[F[A, BB]]
     def coerceLeft[AA, FF[_, _]](implicit @nowarn ev: F[AA, B] <:< FF[AA, B]): FF[AA, B]  = fab.asInstanceOf[FF[AA, B]]
     def coerceRight[FF[_, _], BB](implicit @nowarn ev: F[A, BB] <:< FF[A, BB]): FF[A, BB] = fab.asInstanceOf[FF[A, BB]]
   }
 
   private[laserdisc] implicit final class WidenOps3[F[_[_], _], G[_], A](private val fga: F[G, A]) extends AnyVal {
-    def widenRight[AA: <:<[A, *]: =:!=[A, *]]: F[G, AA] = fga.asInstanceOf[F[G, AA]]
+    def widenRight[AA: <:<[A, _]: =:!=[A, _]]: F[G, AA] = fga.asInstanceOf[F[G, AA]]
   }
 
   private[laserdisc] def absurd: Nothing = throw new RuntimeException("This shouldn't happen. A bug is present in the code")

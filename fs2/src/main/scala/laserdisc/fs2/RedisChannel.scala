@@ -24,7 +24,7 @@ package fs2
 
 import _root_.fs2.{Chunk, Pull}
 import _root_.fs2.io.net.Socket
-import cats.MonadError
+import cats.MonadThrow
 import cats.effect.{Concurrent, Resource}
 import cats.syntax.flatMap.*
 import com.comcast.ip4s.{Host, SocketAddress}
@@ -60,7 +60,7 @@ object RedisChannel {
     Network[F].client(address, PlatformDependent.socketOptions(receiveBufferSizeBytes))
 
   private[this] object impl {
-    def send[F[_]: MonadError[*[_], Throwable]](socketWrite: Chunk[Byte] => F[Unit])(
+    def send[F[_]: MonadThrow](socketWrite: Chunk[Byte] => F[Unit])(
         implicit logSelector: LogSelector[F]
     ): Pipe[F, RESP, Unit] =
       _.evalTap(resp => logSelector.log.trace(s"sending $resp"))
@@ -68,7 +68,7 @@ object RedisChannel {
         .chunks
         .evalMap(chunks => socketWrite(Chunk.array(chunks.foldLeft(BitVector.empty)(_ ++ _).toByteArray)))
 
-    def receiveResp[F[_]: MonadError[*[_], Throwable]](implicit logSelector: LogSelector[F]): Pipe[F, Byte, RESP] = {
+    def receiveResp[F[_]: MonadThrow](implicit logSelector: LogSelector[F]): Pipe[F, Byte, RESP] = {
       def framing: Pipe[F, Byte, CompleteFrame] = {
         def loopScan(bytesIn: Stream[F, Byte], previous: RESPFrame): Pull[F, CompleteFrame, Unit] =
           bytesIn.pull.uncons.flatMap {

@@ -196,23 +196,23 @@ trait SortedSetBaseP {
   final def zlexcount(key: Key, range: LexRange): Protocol.Aux[NonNegInt] =
     Protocol("ZLEXCOUNT", key *: range.min *: range.max *: EmptyTuple).as[Num, NonNegInt]
 
-  final def zrange[A: Bulk ==> *](key: Key, start: Index, stop: Index): Protocol.Aux[Seq[A]] =
+  final def zrange[A: Read[Bulk, _]](key: Key, start: Index, stop: Index): Protocol.Aux[Seq[A]] =
     Protocol("ZRANGE", key *: start *: stop *: EmptyTuple).as[Arr, Seq[A]]
 
-  final def zrangebylex[A: Bulk ==> *](key: Key, range: LexRange): Protocol.Aux[Seq[A]] =
+  final def zrangebylex[A: Read[Bulk, _]](key: Key, range: LexRange): Protocol.Aux[Seq[A]] =
     Protocol("ZRANGEBYLEX", key *: range.min *: range.max *: EmptyTuple).as[Arr, Seq[A]]
 
-  final def zrangebylex[A: Bulk ==> *](key: Key, range: LexRange, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
+  final def zrangebylex[A: Read[Bulk, _]](key: Key, range: LexRange, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
     Protocol("ZRANGEBYLEX", key *: range.min *: range.max *: "LIMIT" *: offset *: count *: EmptyTuple).as[Arr, Seq[A]]
 
-  final def zrangebyscore[A: Bulk ==> *](key: Key, range: ScoreRange): Protocol.Aux[Seq[A]] =
+  final def zrangebyscore[A: Read[Bulk, _]](key: Key, range: ScoreRange): Protocol.Aux[Seq[A]] =
     Protocol("ZRANGEBYSCORE", key *: range.min *: range.max *: EmptyTuple).as[Arr, Seq[A]]
-  final def zrangebyscore[A: Bulk ==> *](key: Key, range: ScoreRange, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
+  final def zrangebyscore[A: Read[Bulk, _]](key: Key, range: ScoreRange, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
     Protocol("ZRANGEBYSCORE", key *: range.min *: range.max *: "LIMIT" *: offset *: count *: EmptyTuple).as[Arr, Seq[A]]
 
-  final def zrangebyscorewithscores[A: Bulk ==> *](key: Key, range: ScoreRange): Protocol.Aux[Seq[(A, Double)]] =
+  final def zrangebyscorewithscores[A: Read[Bulk, _]](key: Key, range: ScoreRange): Protocol.Aux[Seq[(A, Double)]] =
     Protocol("ZRANGEBYSCORE", key *: range.min *: range.max *: "WITHSCORES" *: EmptyTuple).as[Arr, Seq[(A, Double)]]
-  final def zrangebyscorewithscores[A: Bulk ==> *](
+  final def zrangebyscorewithscores[A: Read[Bulk, _]](
       key: Key,
       range: ScoreRange,
       offset: NonNegLong,
@@ -236,23 +236,23 @@ trait SortedSetBaseP {
   final def zremrangebyscore(key: Key, range: ScoreRange): Protocol.Aux[NonNegInt] =
     Protocol("ZREMRANGEBYSCORE", key *: range.min *: range.max *: EmptyTuple).as[Num, NonNegInt]
 
-  final def zrevrange[A: Bulk ==> *](key: Key, start: Index, stop: Index): Protocol.Aux[Seq[A]] =
+  final def zrevrange[A: Read[Bulk, _]](key: Key, start: Index, stop: Index): Protocol.Aux[Seq[A]] =
     Protocol("ZREVRANGE", key *: start *: stop *: EmptyTuple).as[Arr, Seq[A]]
 
-  final def zrevrangebylex[A: Bulk ==> *](key: Key, range: LexRange): Protocol.Aux[Seq[A]] =
+  final def zrevrangebylex[A: Read[Bulk, _]](key: Key, range: LexRange): Protocol.Aux[Seq[A]] =
     Protocol("ZREVRANGEBYLEX", key *: range.max *: range.min *: EmptyTuple).as[Arr, Seq[A]]
 
-  final def zrevrangebylex[A: Bulk ==> *](key: Key, range: LexRange, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
+  final def zrevrangebylex[A: Read[Bulk, _]](key: Key, range: LexRange, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
     Protocol("ZREVRANGEBYLEX", key *: range.max *: range.min *: "LIMIT" *: offset *: count *: EmptyTuple).as[Arr, Seq[A]]
 
-  final def zrevrangebyscore[A: Bulk ==> *](key: Key, range: ScoreRange): Protocol.Aux[Seq[A]] =
+  final def zrevrangebyscore[A: Read[Bulk, _]](key: Key, range: ScoreRange): Protocol.Aux[Seq[A]] =
     Protocol("ZREVRANGEBYSCORE", key *: range.max *: range.min *: EmptyTuple).as[Arr, Seq[A]]
-  final def zrevrangebyscore[A: Bulk ==> *](key: Key, range: ScoreRange, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
+  final def zrevrangebyscore[A: Read[Bulk, _]](key: Key, range: ScoreRange, offset: NonNegLong, count: PosLong): Protocol.Aux[Seq[A]] =
     Protocol("ZREVRANGEBYSCORE", key *: range.max *: range.min *: "LIMIT" *: offset *: count *: EmptyTuple).as[Arr, Seq[A]]
 
-  final def zrevrangebyscorewithscores[A: Bulk ==> *](key: Key, range: ScoreRange): Protocol.Aux[Seq[(A, Double)]] =
+  final def zrevrangebyscorewithscores[A: Read[Bulk, _]](key: Key, range: ScoreRange): Protocol.Aux[Seq[(A, Double)]] =
     Protocol("ZREVRANGEBYSCORE", key *: range.max *: range.min *: "WITHSCORES" *: EmptyTuple).as[Arr, Seq[(A, Double)]]
-  final def zrevrangebyscorewithscores[A: Bulk ==> *](
+  final def zrevrangebyscorewithscores[A: Read[Bulk, _]](
       key: Key,
       range: ScoreRange,
       offset: NonNegLong,
@@ -264,13 +264,13 @@ trait SortedSetBaseP {
   final def zrevrank(key: Key, member: Key): Protocol.Aux[Option[NonNegInt]] =
     Protocol("ZREVRANK", key *: member *: EmptyTuple).asC[Num :+: NullBulk :+: CNil, Option[NonNegInt]]
 
-  final def zscan[A: λ[a => Arr ==> Seq[a]]](key: Key, cursor: NonNegLong): Protocol.Aux[Scan[A]] =
+  final def zscan[A: ReadArrToSeq](key: Key, cursor: NonNegLong): Protocol.Aux[Scan[A]] =
     Protocol("ZSCAN", key *: cursor *: EmptyTuple).as[Arr, Scan[A]]
-  final def zscan[A: λ[a => Arr ==> Seq[a]]](key: Key, cursor: NonNegLong, pattern: GlobPattern): Protocol.Aux[Scan[A]] =
+  final def zscan[A: ReadArrToSeq](key: Key, cursor: NonNegLong, pattern: GlobPattern): Protocol.Aux[Scan[A]] =
     Protocol("ZSCAN", key *: cursor *: "MATCH" *: pattern *: EmptyTuple).as[Arr, Scan[A]]
-  final def zscan[A: λ[a => Arr ==> Seq[a]]](key: Key, cursor: NonNegLong, count: PosInt): Protocol.Aux[Scan[A]] =
+  final def zscan[A: ReadArrToSeq](key: Key, cursor: NonNegLong, count: PosInt): Protocol.Aux[Scan[A]] =
     Protocol("ZSCAN", key *: cursor *: "COUNT" *: count *: EmptyTuple).as[Arr, Scan[A]]
-  final def zscan[A: λ[a => Arr ==> Seq[a]]](key: Key, cursor: NonNegLong, pattern: GlobPattern, count: PosInt): Protocol.Aux[Scan[A]] =
+  final def zscan[A: ReadArrToSeq](key: Key, cursor: NonNegLong, pattern: GlobPattern, count: PosInt): Protocol.Aux[Scan[A]] =
     Protocol("ZSCAN", key *: cursor *: "MATCH" *: pattern *: "COUNT" *: count *: EmptyTuple).as[Arr, Scan[A]]
 
   final def zscore[A: Show](key: Key, member: A): Protocol.Aux[Option[Double]] =

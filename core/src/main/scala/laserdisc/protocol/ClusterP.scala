@@ -29,7 +29,7 @@ object ClusterP {
   import scala.language.dynamics
 
   final class Info(private val properties: Map[String, String]) extends AnyVal with Dynamic {
-    def selectDynamic[A](field: String)(implicit R: String ==> A): Maybe[A] =
+    def selectDynamic[A](field: String)(implicit R: Read[String, A]): Maybe[A] =
       properties
         .get(field)
         .toRight(RESPDecErr(s"no key $field of the expected type found"))
@@ -37,7 +37,7 @@ object ClusterP {
         .widenLeft[Throwable]
   }
   object Info {
-    implicit val infoRead: Bulk ==> Info =
+    implicit val infoRead: Read[Bulk, Info] =
       KVPS.contramap[Bulk](_.value.split(CRLF).toList).map(kv => new Info(kv.toMap))
   }
 
@@ -54,7 +54,7 @@ object ClusterP {
   )
   final case class Nodes(nodes: Seq[Node]) extends AnyVal
   object Nodes {
-    private final val A: String ==> Address = {
+    private final val A: Read[String, Address] = {
       val HPCP = raw"([A-Za-z0-9\-\.]*):(\d+)@(\d+)".r
       val HP   = raw"([A-Za-z0-9\-\.]*):(\d+)".r
       Read.instance {
@@ -65,7 +65,7 @@ object ClusterP {
         case other                                          => Left(RESPDecErr(s"Unexpected encoding for Address. Was $other"))
       }
     }
-    private final val Fs: String ==> Seq[Flag] = Read.instance {
+    private final val Fs: Read[String, Seq[Flag]] = Read.instance {
       case "noflags" => Right(Seq.empty)
       case s         =>
         s.split(COMMA_CH).foldRight[RESPDecErr | List[Flag]](Right(Nil)) {
@@ -80,17 +80,17 @@ object ClusterP {
           case (_, left)                 => left
         }
     }
-    private final val MM: String ==> Option[NodeId] = Read.instance {
+    private final val MM: Read[String, Option[NodeId]] = Read.instance {
       case "-"        => Right(None)
       case NodeId(id) => Right(Some(id))
       case other      => Left(RESPDecErr(s"Wrong encoding for Node Id. Was $other"))
     }
-    private final val L: String ==> LinkState = Read.instance {
+    private final val L: Read[String, LinkState] = Read.instance {
       case "connected"    => Right(LinkState.connected)
       case "disconnected" => Right(LinkState.disconnected)
       case other          => Left(RESPDecErr(s"Wrong encoding for link state. Was $other"))
     }
-    private final val Ss: Seq[String] ==> Seq[SlotType] = {
+    private final val Ss: Read[Seq[String], Seq[SlotType]] = {
       val R  = raw"(\d+)-(\d+)".r
       val IS = raw"\[(\d+)-<-(${NodeIdRegexWit.value})\]".r
       val MS = raw"\[(\d+)->-(${NodeIdRegexWit.value})\]".r
@@ -105,8 +105,8 @@ object ClusterP {
         }
       }
     }
-    private final val ND: String ==> Node = {
-      val errorS = "String ==> Node, Error decoding a cluster Node. Error was: "
+    private final val ND: Read[String, Node] = {
+      val errorS = "Read[String, Node], Error decoding a cluster Node. Error was: "
       _.split(SPACE_CH).toList match {
         case NodeId(id) :: A(Right(a)) :: Fs(Right(fs)) :: MM(Right(mm)) :: ToInt(NonNegInt(ps)) :: ToInt(NonNegInt(pr)) ::
             ToInt(NonNegInt(ce)) :: L(Right(l)) :: Ss(Right(ss)) =>
@@ -125,12 +125,12 @@ object ClusterP {
       }
     }
 
-    implicit final val nodesRead: Bulk ==> Nodes = Read.instance { case Bulk(s) =>
+    implicit final val nodesRead: Read[Bulk, Nodes] = Read.instance { case Bulk(s) =>
       s.split(LF_CH)
         .foldRight[RESPDecErr | (List[Node], Int)](Right(Nil -> 0)) {
           case (ND(Right(node)), Right((ns, nsl))) => Right((node :: ns) -> (nsl + 1))
           case (ND(Left(e)), Right((_, nsl)))      =>
-            Left(RESPDecErr(s"Bulk ==> Nodes, Error decoding the cluster's node ${nsl + 1}. Error was: $e"))
+            Left(RESPDecErr(s"Read[Bulk, Nodes], Error decoding the cluster's node ${nsl + 1}. Error was: $e"))
           case (_, left) => left
         }
         .map(n => Nodes(n._1))
@@ -231,14 +231,14 @@ object ClusterP {
   object Slots {
     import SlotInfo.*
     import SlotType.Range
-    private val H: Bulk ==> Host = Read.instance {
+    private val H: Read[Bulk, Host] = Read.instance {
       case Bulk("")      => Right(LoopbackHost)
       case Bulk(Host(h)) => Right(h)
       case Bulk(other)   => Left(RESPDecErr(s"Wrong host encoding. Was $other"))
     }
 
-    private val SI: Seq[RESP] ==> SlotInfo = {
-      val HPNIs: Seq[RESP] ==> Seq[HostPortNodeId] = Read.instance {
+    private val SI: Read[Seq[RESP], SlotInfo] = {
+      val HPNIs: Read[Seq[RESP], Seq[HostPortNodeId]] = Read.instance {
         _.foldRight[RESPDecErr | Seq[HostPortNodeId]](Right(Seq.empty)) {
           case (Arr(H(Right(h)) :: Num(ToInt(Port(p))) :: Bulk(NodeId(id)) :: Nil), Right(hsts)) =>
             Right(HostPortNodeId(h, p, id) +: hsts)
@@ -247,7 +247,7 @@ object ClusterP {
           case (_, left)              => left
         }
       }
-      val HPs: Seq[RESP] ==> Seq[HostPort] = Read.instance {
+      val HPs: Read[Seq[RESP], Seq[HostPort]] = Read.instance {
         _.foldRight[RESPDecErr | Seq[HostPort]](Right(Seq.empty)) {
           case (Arr(H(Right(h)) :: Num(ToInt(Port(p))) :: Nil), Right(hsts)) =>
             Right(HostPort(h, p) +: hsts)
@@ -273,7 +273,7 @@ object ClusterP {
       }
     }
 
-    implicit final val slotsRead: Arr ==> Slots = Read.instance { case Arr(arrays) =>
+    implicit final val slotsRead: Read[Arr, Slots] = Read.instance { case Arr(arrays) =>
       arrays.foldRight[RESPDecErr | (Map[SlotType.Range, SlotInfo], Int)](Right(Map.empty -> 0)) {
         case (Arr(Num(ToInt(Slot(from))) :: Num(ToInt(Slot(to))) :: Arr(SI(Right(si))) :: Nil), Right((sts, stsl))) =>
           Right((sts + (Range(from, to) -> si)) -> (stsl + 1))
@@ -282,7 +282,7 @@ object ClusterP {
         case (Arr(other), Right((_, stsl))) =>
           Left(
             RESPDecErr(
-              s"Arr ==> Slots unexpected slot encoding at element ${stsl + 1}. Expected [from, to, [[host, port], node id, replicas]] or [from, to, [[host, port], replicas]] but was $other"
+              s"Read[Arr, Slots] unexpected slot encoding at element ${stsl + 1}. Expected [from, to, [[host, port], node id, replicas]] or [from, to, [[host, port], replicas]] but was $other"
             )
           )
         case (_, left) => left

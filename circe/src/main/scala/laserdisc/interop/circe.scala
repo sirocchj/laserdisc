@@ -28,8 +28,8 @@ import cats.syntax.show.*
 import io.circe.syntax.*
 
 object circe {
-  implicit final def encoderShow[A: Encoder]: Show[A]    = Show.instance(_.asJson.noSpaces)
-  implicit final def decoderRead[A: Decoder]: Bulk ==> A =
+  implicit final def encoderShow[A: Encoder]: Show[A]       = Show.instance(_.asJson.noSpaces)
+  implicit final def decoderRead[A: Decoder]: Read[Bulk, A] =
     Read.instance { case Bulk(s) =>
       parser.decode(s).leftMap(err => RESPDecErr(err.show))
     }

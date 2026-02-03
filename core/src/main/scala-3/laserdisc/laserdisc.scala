@@ -32,37 +32,17 @@ import eu.timepit.refined.numeric.{Interval, NonNaN, NonNegative, Positive}
 import eu.timepit.refined.string.{IPv4, MatchesRegex}
 import eu.timepit.refined.types.net.PrivateNetworks.*
 
-import scala.annotation.nowarn
+import scala.annotation.{implicitNotFound, nowarn}
 import scala.util.NotGiven
 
 // Basic type aliases
 final type Maybe[A] = Throwable | A
 
-// Type forwarders
-final type Arr        = protocol.Arr
-final type Bulk       = protocol.Bulk
-final type Err        = protocol.Err
-final type NilArr     = protocol.NilArr.type
-final type NullBulk   = protocol.NullBulk.type
-final type Num        = protocol.Num
-final type Str        = protocol.Str
-final type Protocol   = protocol.Protocol
-final type ==>[A, B]  = protocol.Read[A, B]
-final type RESP       = protocol.RESP
-final type Show[A]    = protocol.Show[A]
-final type RESPDecErr = protocol.RESPDecErr
+// Export all protocol
+export protocol.{Arr, Bulk, Err, NilArr, NullBulk, Num, Protocol, RESP, RESPDecErr, Read, Show, Str}
 
-// Object forwarders
-final val Arr        = protocol.Arr
-final val Bulk       = protocol.Bulk
-final val Err        = protocol.Err
-final val NilArr     = protocol.NilArr
-final val NullBulk   = protocol.NullBulk
-final val Num        = protocol.Num
-final val Protocol   = protocol.Protocol
-final val Read       = protocol.Read
-final val Show       = protocol.Show
-final val RESPDecErr = protocol.RESPDecErr
+// Specialized type lambda
+final type ReadArrToSeq[A] = Read[Arr, Seq[A]]
 
 private[this] final type NoControlChar = Not[ControlChar]
 private[this] final type NoWhitespace  = Not[Whitespace]
@@ -219,6 +199,9 @@ private[laserdisc] object ToDouble {
     catch { case _: NumberFormatException => None }
 }
 
+@implicitNotFound("${A} must not be a subtype of ${B}")
+private[laserdisc] type LUBConstraint[L <: Tuple, A] = Tuple.Union[L] <:< A
+
 @implicitNotFound("${A} must not be the same type as ${B}")
 private[laserdisc] type =:!=[A, B] = NotGiven[A =:= B]
 
@@ -226,18 +209,18 @@ private[laserdisc] type =:!=[A, B] = NotGiven[A =:= B]
 private[laserdisc] type <:!<[A, B] = NotGiven[A <:< B]
 
 private[laserdisc] implicit final class WidenOps1[F[_], A](private val fa: F[A]) extends AnyVal {
-  def widen[AA: <:<[A, *]: =:!=[A, *]]: F[AA] = fa.asInstanceOf[F[AA]]
+  def widen[AA: <:<[A, _]: =:!=[A, _]]: F[AA] = fa.asInstanceOf[F[AA]]
 }
 
 private[laserdisc] implicit final class WidenOps2[F[_, _], A, B](private val fab: F[A, B]) extends AnyVal {
-  def widenLeft[AA: <:<[A, *]: =:!=[A, *]]: F[AA, B]                                    = fab.asInstanceOf[F[AA, B]]
-  def widenRight[BB: <:<[B, *]: =:!=[B, *]]: F[A, BB]                                   = fab.asInstanceOf[F[A, BB]]
+  def widenLeft[AA: <:<[A, _]: =:!=[A, _]]: F[AA, B]                                    = fab.asInstanceOf[F[AA, B]]
+  def widenRight[BB: <:<[B, _]: =:!=[B, _]]: F[A, BB]                                   = fab.asInstanceOf[F[A, BB]]
   def coerceLeft[AA, FF[_, _]](implicit @nowarn ev: F[AA, B] <:< FF[AA, B]): FF[AA, B]  = fab.asInstanceOf[FF[AA, B]]
   def coerceRight[FF[_, _], BB](implicit @nowarn ev: F[A, BB] <:< FF[A, BB]): FF[A, BB] = fab.asInstanceOf[FF[A, BB]]
 }
 
 private[laserdisc] implicit final class WidenOps3[F[_[_], _], G[_], A](private val fga: F[G, A]) extends AnyVal {
-  def widenRight[AA: <:<[A, *]: =:!=[A, *]]: F[G, AA] = fga.asInstanceOf[F[G, AA]]
+  def widenRight[AA: <:<[A, _]: =:!=[A, _]]: F[G, AA] = fga.asInstanceOf[F[G, AA]]
 }
 
 private[laserdisc] def absurd: Nothing = throw new RuntimeException("This shouldn't happen. A bug is present in the code")

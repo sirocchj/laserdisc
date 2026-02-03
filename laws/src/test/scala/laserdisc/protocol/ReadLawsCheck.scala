@@ -32,11 +32,11 @@ final class ReadLawsCheck extends DisciplineSuite with LawsCheckSettings with Im
 
   import ReadInstances.*
 
-  checkAll("Read[Num, *]", MonadTests[Read[Num, *]].stackUnsafeMonad[Long, String, Long])
-  checkAll("Monad[Read[Num, *]]", SerializableTests.serializable(Monad[Read[Num, *]]))
+  checkAll("Read[Num, _]", MonadTests[Read[Num, _]].stackUnsafeMonad[Long, String, Long])
+  checkAll("Monad[Read[Num, _]]", SerializableTests.serializable(Monad[Read[Num, _]]))
 
-  checkAll("Read[*, Long]", ContravariantTests[Read[*, Long]].contravariant[Str, Num, Str])
-  checkAll("Contravariant[Read[*, Long]]", SerializableTests.serializable(Contravariant[Read[*, Long]]))
+  checkAll("Read[_, Long]", ContravariantTests[Read[_, Long]].contravariant[Str, Num, Str])
+  checkAll("Contravariant[Read[_, Long]]", SerializableTests.serializable(Contravariant[Read[_, Long]]))
 }
 
 private[protocol] sealed trait Implicits {
@@ -65,7 +65,7 @@ private[protocol] sealed trait Implicits {
     Arbitrary(ev.arbitrary map (s => Read.const(_ => s.length.toLong)))
 
   implicit def eqReadTup[A, B, C, D](implicit ga: Gen[List[A]], eb: Eq[B], ec: Eq[C], ed: Eq[D]): Eq[Read[A, (B, C, D)]] =
-    (x: ==>[A, (B, C, D)], y: ==>[A, (B, C, D)]) => {
+    (x: Read[A, (B, C, D)], y: Read[A, (B, C, D)]) => {
       val as = ga.sample.get
       as.forall { a =>
         (x.read(a), y.read(a)) match {
@@ -77,7 +77,7 @@ private[protocol] sealed trait Implicits {
     }
 
   implicit def eqRead[A, B](implicit ga: Gen[List[A]], eb: Eq[B]): Eq[Read[A, B]] =
-    (x: A ==> B, y: A ==> B) => {
+    (x: Read[A, B], y: Read[A, B]) => {
       val as = ga.sample.get
       as.forall { a =>
         (x.read(a), y.read(a)) match {

@@ -88,26 +88,26 @@ object ServerP {
         extends Role
     final case class Sentinel(masterNames: Seq[Key]) extends Role
 
-    implicit val roleRead: Arr ==> Role = {
-      val CR: Arr ==> Client = Read.instance {
+    implicit val roleRead: Read[Arr, Role] = {
+      val CR: Read[Arr, Client] = Read.instance {
         case Arr(Bulk(Host(host)) +: Bulk(ToInt(Port(port))) +: Bulk(ToLong(NonNegLong(offset))) +: Seq()) =>
           Right(Client(host, port, offset))
         case Arr(other) => Left(RESPDecErr(s"Unexpected role: it should be [host, port, offset] but was $other"))
       }
-      val RSR: Bulk ==> ReplicaStatus = Read.instance {
+      val RSR: Read[Bulk, ReplicaStatus] = Read.instance {
         case Bulk("connect")    => Right(connect)
         case Bulk("connecting") => Right(connecting)
         case Bulk("sync")       => Right(sync)
         case Bulk("connected")  => Right(connected)
         case Bulk(other)        => Left(RESPDecErr(s"Unexpected replica status. Was $other"))
       }
-      val MR: Arr ==> Seq[Key] = Read[Arr, Seq[Key]]
+      val MR: Read[Arr, Seq[Key]] = Read[Arr, Seq[Key]]
 
       Read.instance {
         case Arr(Bulk("master") +: Num(NonNegLong(offset)) +: Arr(v) +: Seq()) =>
           v.foldRight[RESPDecErr | (List[Client], Int)](Right(Nil -> 0)) {
             case (CR(Right(client)), Right((cs, csl))) => Right((client :: cs) -> (csl + 1))
-            case (CR(Left(e)), Right((_, csl))) => Left(RESPDecErr(s"Arr ==> Role clients error at element ${csl + 1}: ${e.message}"))
+            case (CR(Left(e)), Right((_, csl))) => Left(RESPDecErr(s"Read[Arr, Role] clients error at element ${csl + 1}: ${e.message}"))
             case (_, left)                      => left
           } map (r => Master(offset, r._1))
         case Arr(Bulk("slave") +: Bulk(Host(host)) +: Num(ToInt(Port(port))) +: RSR(Right(status)) +: Num(NonNegLong(offset)) +: Seq()) =>
@@ -122,7 +122,7 @@ object ServerP {
   }
 
   final class Parameters(private val properties: Map[String, String]) extends AnyVal with Dynamic {
-    def selectDynamic[A](field: String)(implicit R: String ==> A): Maybe[A] =
+    def selectDynamic[A](field: String)(implicit R: Read[String, A]): Maybe[A] =
       properties
         .get(field)
         .toRight(RESPDecErr(s"no key $field of the provided type found"))
@@ -134,7 +134,7 @@ object ServerP {
   object ConnectedClients {
     private val KVPair = "(.*)=(.*)".r
 
-    implicit val connectedClientsRead: Bulk ==> ConnectedClients = Read.instance { case Bulk(s) =>
+    implicit val connectedClientsRead: Read[Bulk, ConnectedClients] = Read.instance { case Bulk(s) =>
       Right(
         ConnectedClients(
           s.split(LF_CH).toIndexedSeq.map { clientData =>
@@ -147,13 +147,13 @@ object ServerP {
 
   final case class Configuration(parameters: Parameters)
   object Configuration {
-    implicit val configRead: Arr ==> Configuration =
+    implicit val configRead: Read[Arr, Configuration] =
       Read[Arr, Seq[(String, String)]].map(kvs => Configuration(new Parameters(kvs.toMap)))
   }
 
   final case class Info(sections: Map[InfoSection, Parameters])
   object Info {
-    private val ISR: String ==> InfoSection = Read.instance {
+    private val ISR: Read[String, InfoSection] = Read.instance {
       case "server"       => Right(InfoSection.server)
       case "clients"      => Right(InfoSection.clients)
       case "memory"       => Right(InfoSection.memory)
@@ -166,26 +166,26 @@ object ServerP {
       case "keyspace"     => Right(InfoSection.keyspace)
       case other          => Left(RESPDecErr(s"Unexpected server info specification. Was $other"))
     }
-    private val PR: Seq[String] ==> Parameters =
+    private val PR: Read[Seq[String], Parameters] =
       KVPS.map(kv => new Parameters(kv.toMap))
 
-    private val IFI: String ==> (InfoSection, Parameters) =
+    private val IFI: Read[String, (InfoSection, Parameters)] =
       _.split(LF_CH).toList match {
         case ISR(Right(infoSection)) :: PR(Right(parameters)) => Right(infoSection -> parameters)
         case ISR(Left(e)) :: _                                =>
-          Left(RESPDecErr(s"String ==> (InfoSection, Parameters), Error decoding server's info section. Error was: $e"))
+          Left(RESPDecErr(s"Read[String, (InfoSection, Parameters)], Error decoding server's info section. Error was: $e"))
         case _ :: PR(Left(e)) =>
-          Left(RESPDecErr(s"String ==> (InfoSection, Parameters), Error decoding server's info section parameters. Error was: $e"))
+          Left(RESPDecErr(s"Read[String, (InfoSection, Parameters)], Error decoding server's info section parameters. Error was: $e"))
         case other =>
           Left(RESPDecErr(s"Unexpected encoding for server's info section. Expected [info section, [parameter: value]] but was $other"))
       }
 
-    implicit val infoRead: Bulk ==> Info = Read.instance { case Bulk(s) =>
+    implicit val infoRead: Read[Bulk, Info] = Read.instance { case Bulk(s) =>
       s.split(LF * 2)
         .foldRight[RESPDecErr | (List[(InfoSection, Parameters)], Int)](Right(Nil -> 0)) {
           case (IFI(Right(infoSection)), Right((iss, isl))) => Right((infoSection :: iss) -> (isl + 1))
           case (IFI(Left(e)), Right((_, isl)))              =>
-            Left(RESPDecErr(s"Bulk ==> Info, Error decoding the server's info section at position ${isl + 1}. Error was: $e"))
+            Left(RESPDecErr(s"Read[Bulk, Info], Error decoding the server's info section at position ${isl + 1}. Error was: $e"))
           case (_, left) => left
         }
         .map(is => Info(is._1.toMap))

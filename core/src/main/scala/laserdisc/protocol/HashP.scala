@@ -27,10 +27,10 @@ trait HashBaseP {
 
   final def hexists(key: Key, field: Key): Protocol.Aux[Boolean] = Protocol("HEXISTS", key :: field :: Nil).as[Num, Boolean]
 
-  final def hget[A: Bulk ==> *](key: Key, field: Key): Protocol.Aux[Option[A]] =
+  final def hget[A: Read[Bulk, _]](key: Key, field: Key): Protocol.Aux[Option[A]] =
     Protocol("HGET", key :: field :: Nil).opt[GenBulk].as[A]
 
-  final def hgetall[A: Arr ==> *](key: Key): Protocol.Aux[A] = Protocol("HGETALL", key).as[Arr, A]
+  final def hgetall[A: Read[Arr, _]](key: Key): Protocol.Aux[A] = Protocol("HGETALL", key).as[Arr, A]
 
   final def hincrby(key: Key, field: Key, increment: NonZeroLong): Protocol.Aux[Long] =
     Protocol("HINCRBY", key *: field *: increment *: EmptyTuple).as[Num, Long]
@@ -41,12 +41,12 @@ trait HashBaseP {
 
   final def hlen(key: Key): Protocol.Aux[NonNegInt] = Protocol("HLEN", key).as[Num, NonNegInt]
 
-  final def hmget[L <: Tuple: Arr ==> *](key: Key, fields: OneOrMoreKeys): Protocol.Aux[L] =
+  final def hmget[L <: Tuple: Read[Arr, _]](key: Key, fields: OneOrMoreKeys): Protocol.Aux[L] =
     Protocol("HMGET", key :: fields.value).as[Arr, L]
 
-  final def hmset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](key: Key, l: L): Protocol.Aux[OK] =
+  final def hmset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[_, (Key, ?)]](key: Key, l: L): Protocol.Aux[OK] =
     Protocol("HMSET", key *: l).as[Str, OK]
-  final def hmset[P <: Product: RESPParamWrite: <:!<[EmptyTuple, *]](key: Key, product: P): Protocol.Aux[OK] =
+  final def hmset[P <: Product: RESPParamWrite: <:!<[EmptyTuple, _]](key: Key, product: P): Protocol.Aux[OK] =
     Protocol("HMSET", key *: product *: EmptyTuple).as[Str, OK]
 
   final def hscan(key: Key, cursor: NonNegLong): Protocol.Aux[ScanKV] = Protocol("HSCAN", key *: cursor *: EmptyTuple).as[Arr, ScanKV]
@@ -65,7 +65,7 @@ trait HashBaseP {
 
   final def hstrlen(key: Key, field: Key): Protocol.Aux[NonNegInt] = Protocol("HSTRLEN", key :: field :: Nil).as[Num, NonNegInt]
 
-  final def hvals[L <: Tuple: Arr ==> *](key: Key): Protocol.Aux[L] = Protocol("HVALS", key).as[Arr, L]
+  final def hvals[L <: Tuple: Read[Arr, _]](key: Key): Protocol.Aux[L] = Protocol("HVALS", key).as[Arr, L]
 }
 
 trait HashP extends HashBaseP with HashExtP
