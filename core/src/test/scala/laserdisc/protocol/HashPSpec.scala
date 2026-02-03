@@ -181,13 +181,10 @@ abstract class HashPSpec extends BaseSpec with HashP {
     assertNoDiff(
       compileErrors("""hmset(Key("a"), EmptyTuple)"""),
       """|error:
-         |Implicit not found RESPParamWrite[EmptyTuple.type].
-         |
-         |Normally you would not need to define one manually, as one will be derived for you automatically iff:
-         |- an instance of Show[EmptyTuple.type] is in scope
-         |- EmptyTuple.type is a List whose LUB has a RESPParamWrite instance defined
-         |- EmptyTuple.type is a Tuple whose elements all have a RESPParamWrite instance defined
-         |
+         |ambiguous implicit values:
+         | both method nsubAmbig1 in package laserdisc of type [A, B >: A]A <:!< B
+         | and method nsubAmbig2 in package laserdisc of type [A, B >: A]A <:!< B
+         | match expected type shapeless.HNil <:!< laserdisc.EmptyTuple
          |hmset(Key("a"), EmptyTuple)
          |     ^
          |""".stripMargin
