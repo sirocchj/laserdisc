@@ -40,6 +40,8 @@ Normally you would not need to define one manually, as one will be derived for y
 """
 ) trait RESPParamWrite[A] {
   def write(a: A): Seq[GenBulk]
+
+  final def contramap[B](f: B => A): RESPParamWrite[B] = RESPParamWrite.instance(write _ compose f)
 }
 
 object RESPParamWrite extends RESPParamWriteInstances {
@@ -49,7 +51,6 @@ object RESPParamWrite extends RESPParamWriteInstances {
     (_: A) => thunk
   final def instance[A](f: A => Seq[GenBulk]): RESPParamWrite[A] =
     (a: A) => f(a)
-  final def contramap[A, B](f: B => A)(implicit fa: RESPParamWrite[A]): RESPParamWrite[B] = instance((b: B) => fa.write(f(b)))
 }
 
 private[protocol] sealed trait RESPParamWriteInstances extends RESPParamWriteInstances1 {
@@ -88,6 +89,6 @@ private[protocol] sealed trait RESPParamWriteInstances2 {
       @nowarn ev0: Length.Aux[L, N],
       @nowarn ev1: N >= _1,
       @nowarn ev2: LUBConstraint[L, FieldType[_, _]],
-      ev3: RESPParamWrite[L]
-  ): RESPParamWrite[P] = RESPParamWrite.contramap(gen.to(_))
+      rpw: RESPParamWrite[L]
+  ): RESPParamWrite[P] = rpw.contramap(gen.to)
 }
