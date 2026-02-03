@@ -46,7 +46,7 @@ trait HashBaseP {
 
   final def hmset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](key: Key, l: L): Protocol.Aux[OK] =
     Protocol("HMSET", key *: l).as[Str, OK]
-  final def hmset[P <: Product: RESPParamWrite](key: Key, product: P): Protocol.Aux[OK] =
+  final def hmset[P <: Product: RESPParamWrite: <:!<[EmptyTuple, *]](key: Key, product: P): Protocol.Aux[OK] =
     Protocol("HMSET", key *: product *: EmptyTuple).as[Str, OK]
 
   final def hscan(key: Key, cursor: NonNegLong): Protocol.Aux[ScanKV] = Protocol("HSCAN", key *: cursor *: EmptyTuple).as[Arr, ScanKV]

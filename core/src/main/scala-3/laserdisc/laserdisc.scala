@@ -33,6 +33,7 @@ import eu.timepit.refined.string.{IPv4, MatchesRegex}
 import eu.timepit.refined.types.net.PrivateNetworks.*
 
 import scala.annotation.nowarn
+import scala.util.NotGiven
 
 // Basic type aliases
 final type Maybe[A] = Throwable | A
@@ -218,16 +219,11 @@ private[laserdisc] object ToDouble {
     catch { case _: NumberFormatException => None }
 }
 
-private[laserdisc] sealed trait =:!=[A, B] extends Serializable
-private[laserdisc] implicit def neq[A, B]: A =:!= B    = new =:!=[A, B] {}
-private[laserdisc] implicit def neqAmbig1[A]: A =:!= A = absurd
-private[laserdisc] implicit def neqAmbig2[A]: A =:!= A = absurd
+@implicitNotFound("${A} must not be the same type as ${B}")
+private[laserdisc] type =:!=[A, B] = NotGiven[A =:= B]
 
 @implicitNotFound("${A} must not be a subtype of ${B}")
-private[laserdisc] sealed trait <:!<[A, B] extends Serializable
-private[laserdisc] implicit def nsub[A, B]: A <:!< B            = new <:!<[A, B] {}
-private[laserdisc] implicit def nsubAmbig1[A, B >: A]: A <:!< B = absurd
-private[laserdisc] implicit def nsubAmbig2[A, B >: A]: A <:!< B = absurd
+private[laserdisc] type <:!<[A, B] = NotGiven[A <:< B]
 
 private[laserdisc] implicit final class WidenOps1[F[_], A](private val fa: F[A]) extends AnyVal {
   def widen[AA: <:<[A, *]: =:!=[A, *]]: F[AA] = fa.asInstanceOf[F[AA]]

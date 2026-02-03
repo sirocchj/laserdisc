@@ -22,8 +22,6 @@
 package laserdisc
 package protocol
 
-import scala.annotation.nowarn
-
 object StringP {
   sealed trait Bit
   object Bit {
@@ -152,18 +150,16 @@ trait StringBaseP {
 
   final def mget[A: Arr ==> *](keys: OneOrMoreKeys): Protocol.Aux[A] = Protocol("MGET", keys.value).as[Arr, A]
 
-  @nowarn final def mset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[OK] =
+  final def mset[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[OK] =
     Protocol("MSET", l).as[Str, OK]
-
-  final def mset[P <: Product: RESPParamWrite](product: P): Protocol.Aux[OK] = Protocol("MSET", product).as[Str, OK]
-
+  final def mset[P <: Product: RESPParamWrite: <:!<[EmptyTuple, *]](product: P): Protocol.Aux[OK] = Protocol("MSET", product).as[Str, OK]
   final def mset[A: Show](values: OneOrMore[(Key, A)]): Protocol.Aux[OK] = Protocol("MSET", values.value).as[Str, OK]
 
-  @nowarn final def msetnx[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[Boolean] =
+  final def msetnx[L <: NonEmptyTuple: RESPParamWrite: LUBConstraint[*, (Key, _)]](l: L): Protocol.Aux[Boolean] =
     Protocol("MSETNX", l).as[Num, Boolean]
-
-  final def msetnx[P <: Product: RESPParamWrite](product: P): Protocol.Aux[Boolean] = Protocol("MSETNX", product).as[Num, Boolean]
-  final def msetnx[A: Show](values: OneOrMore[(Key, A)]): Protocol.Aux[Boolean]     =
+  final def msetnx[P <: Product: RESPParamWrite: <:!<[EmptyTuple, *]](product: P): Protocol.Aux[Boolean] =
+    Protocol("MSETNX", product).as[Num, Boolean]
+  final def msetnx[A: Show](values: OneOrMore[(Key, A)]): Protocol.Aux[Boolean] =
     Protocol("MSETNX", values.value).as[Num, Boolean]
 
   final def psetex[A: Show](key: Key, milliseconds: PosLong, value: A): Protocol.Aux[OK] =
