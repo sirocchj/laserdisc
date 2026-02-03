@@ -161,8 +161,8 @@ trait ReadInstances1 extends EitherSyntax with ReadInstances2 {
     vector.foldRight[RESPDecErr | (List[Option[A]], Int)](Right(Nil -> 0)) {
       case (NullBulk, Right((as0, asl)))    => Right((None :: as0) -> (asl + 1))
       case (R(Right(a)), Right((as0, asl))) => Right((Some(a) :: as0) -> (asl + 1))
-      case (R(Left(e)), Right((_, asl)))    => Left(RESPDecErr(s"Read[Arr(Bulk), Seq[Option[A]]] error at element ${asl + 1}: ${e.message}"))
-      case (other, Right((_, asl)))         =>
+      case (R(Left(e)), Right((_, asl))) => Left(RESPDecErr(s"Read[Arr(Bulk), Seq[Option[A]]] error at element ${asl + 1}: ${e.message}"))
+      case (other, Right((_, asl)))      =>
         Left(RESPDecErr(s"Read[Arr(Bulk), Seq[Option[A]]] error at element ${asl + 1}: Unexpected for Bulk. Was $other"))
       case (_, left) => left
     } map (_._1)

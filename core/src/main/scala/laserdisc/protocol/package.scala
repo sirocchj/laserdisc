@@ -33,7 +33,9 @@ package object protocol {
     ss.foldRight[RESPDecErr | (List[(String, String)], Int)](Right(Nil -> 0)) {
       case (KVP(Right((k, v))), Right((kvs, kvl))) => Right(((k -> v) :: kvs) -> (kvl + 1))
       case (KVP(Left(e)), Right((_, kvl)))         =>
-        Left(RESPDecErr(s"Read[List[String], List[(String, String)]], Error decoding key value pairs at position ${kvl + 1}. Error was: $e"))
+        Left(
+          RESPDecErr(s"Read[List[String], List[(String, String)]], Error decoding key value pairs at position ${kvl + 1}. Error was: $e")
+        )
       case (_, left) => left
     }.map(_._1)
   }

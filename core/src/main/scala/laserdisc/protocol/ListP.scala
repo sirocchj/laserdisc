@@ -60,7 +60,8 @@ trait ListBaseP {
   final def lpush[A: Show](key: Key, values: OneOrMore[A]): Protocol.Aux[PosInt] =
     Protocol("LPUSH", key *: values.value *: EmptyTuple).as[Num, PosInt]
 
-  final def lpushx[A: Show](key: Key, value: A): Protocol.Aux[Option[PosInt]] = Protocol("LPUSHX", key *: value *: EmptyTuple).using(zeroIsNone)
+  final def lpushx[A: Show](key: Key, value: A): Protocol.Aux[Option[PosInt]] =
+    Protocol("LPUSHX", key *: value *: EmptyTuple).using(zeroIsNone)
 
   final def lrange[A: Read[Bulk, _]](key: Key, start: Index, end: Index): Protocol.Aux[Seq[A]] =
     Protocol("LRANGE", key *: start *: end *: EmptyTuple).as[Arr, Seq[A]]
@@ -68,7 +69,8 @@ trait ListBaseP {
   final def lrem[A: Show](key: Key, count: Index, value: A): Protocol.Aux[NonNegInt] =
     Protocol("LREM", key *: count *: value *: EmptyTuple).as[Num, NonNegInt]
 
-  final def lset[A: Show](key: Key, index: Index, value: A): Protocol.Aux[OK] = Protocol("LSET", key *: index *: value *: EmptyTuple).as[Str, OK]
+  final def lset[A: Show](key: Key, index: Index, value: A): Protocol.Aux[OK] =
+    Protocol("LSET", key *: index *: value *: EmptyTuple).as[Str, OK]
 
   final def ltrim(key: Key, start: Index, stop: Index): Protocol.Aux[OK] = Protocol("LTRIM", key *: start *: stop *: EmptyTuple).as[Str, OK]
 
@@ -80,7 +82,8 @@ trait ListBaseP {
   final def rpush[A: Show](key: Key, values: OneOrMore[A]): Protocol.Aux[PosInt] =
     Protocol("RPUSH", key *: values.value *: EmptyTuple).as[Num, PosInt]
 
-  final def rpushx[A: Show](key: Key, value: A): Protocol.Aux[Option[PosInt]] = Protocol("RPUSHX", key *: value *: EmptyTuple).using(zeroIsNone)
+  final def rpushx[A: Show](key: Key, value: A): Protocol.Aux[Option[PosInt]] =
+    Protocol("RPUSHX", key *: value *: EmptyTuple).using(zeroIsNone)
 }
 
 trait ListP extends ListBaseP with ListExtP
