@@ -65,6 +65,7 @@ final class Fs2ProtocolHandlerSpec extends FunSuite {
     implicitly[
       Mapper.Aux[
         PromiseMapper.type,
+        // format: off
         (Protocol.Aux[OK], Env[IO]) *:
           (Protocol.Aux[OK], Env[IO]) *:
           (Protocol.Aux[Option[PosInt]], Env[IO]) *:
@@ -75,12 +76,14 @@ final class Fs2ProtocolHandlerSpec extends FunSuite {
           IO[Maybe[Option[PosInt]]] *:
           IO[Maybe[Option[PosInt]]] *:
           EmptyTuple
+        // format: on
       ]
     ]
 
     implicitly[
       ZipConst.Aux[
         Env[IO],
+        // format: off
         Protocol.Aux[OK] *:
           Protocol.Aux[OK] *:
           Protocol.Aux[Option[PosInt]] *:
@@ -91,6 +94,7 @@ final class Fs2ProtocolHandlerSpec extends FunSuite {
           (Protocol.Aux[Option[PosInt]], Env[IO]) *:
           (Protocol.Aux[Option[PosInt]], Env[IO]) *:
           EmptyTuple
+        // format: on
       ]
     ]
 
@@ -98,6 +102,7 @@ final class Fs2ProtocolHandlerSpec extends FunSuite {
       Handler.Aux[
         IO,
         Env[IO],
+        // format: off
         Protocol.Aux[OK] *:
           Protocol.Aux[OK] *:
           Protocol.Aux[Option[PosInt]] *:
@@ -108,12 +113,14 @@ final class Fs2ProtocolHandlerSpec extends FunSuite {
           Maybe[Option[PosInt]] *:
           Maybe[Option[PosInt]] *:
           EmptyTuple
+        // format: on
       ]
     ]
 
     implicitly[
       Mapper.Aux[
         PromiseMapper.type,
+        // format: off
         (Protocol.Aux[OK], Env[IO]) *:
           (Protocol.Aux[OK], Env[IO]) *:
           (Protocol.Aux[OK], Env[IO]) *:
@@ -160,6 +167,7 @@ final class Fs2ProtocolHandlerSpec extends FunSuite {
           IO[Maybe[Option[PosInt]]] *:
           IO[Maybe[Option[PosInt]]] *:
           EmptyTuple
+        // format: on
       ]
     ]
 
@@ -167,6 +175,7 @@ final class Fs2ProtocolHandlerSpec extends FunSuite {
       Handler.Aux[
         IO,
         Env[IO],
+        // format: off
         Protocol.Aux[OK] *:
           Protocol.Aux[OK] *:
           Protocol.Aux[OK] *:
@@ -213,6 +222,7 @@ final class Fs2ProtocolHandlerSpec extends FunSuite {
           Maybe[Option[PosInt]] *:
           Maybe[Option[PosInt]] *:
           EmptyTuple
+        // format: on
       ]
     ]
   }

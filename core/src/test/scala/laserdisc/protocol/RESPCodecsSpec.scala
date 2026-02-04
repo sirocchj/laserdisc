@@ -121,39 +121,39 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling simple strings decodes them correctly") {
-    forAll { (s: String) => assertEquals(s"+$s$CRLF".RESP, Str(s)) }
+    forAll((s: String) => assertEquals(s"+$s$CRLF".RESP, Str(s)))
   }
 
   property("A RESP codec handling simple strings decodes them correctly") {
-    forAll { (s: Str) => assertEquals(s.wireFormat, s"+${s.value}$CRLF") }
+    forAll((s: Str) => assertEquals(s.wireFormat, s"+${s.value}$CRLF"))
   }
 
   property("A RESP codec handling simple strings roundtrips with no errors") {
-    forAll { (s: Str) => assertEquals(s.roundTrip, s) }
+    forAll((s: Str) => assertEquals(s.roundTrip, s))
   }
 
   property("A RESP codec handling errors decodes them correctly") {
-    forAll { (s: String) => assertEquals(s"-$s$CRLF".RESP, Err(s)) }
+    forAll((s: String) => assertEquals(s"-$s$CRLF".RESP, Err(s)))
   }
 
   property("A RESP codec handling errors encodes them correctly") {
-    forAll { (e: Err) => assertEquals(e.wireFormat, s"-${e.message}$CRLF") }
+    forAll((e: Err) => assertEquals(e.wireFormat, s"-${e.message}$CRLF"))
   }
 
   property("A RESP codec handling errors roundtrips with no errors") {
-    forAll { (e: Err) => assertEquals(e.roundTrip, e) }
+    forAll((e: Err) => assertEquals(e.roundTrip, e))
   }
 
   property("A RESP codec handling integers decodes them correctly") {
-    forAll { (l: Long) => assertEquals(s":$l$CRLF".RESP, Num(l)) }
+    forAll((l: Long) => assertEquals(s":$l$CRLF".RESP, Num(l)))
   }
 
   property("A RESP codec handling integers encodes them correctly") {
-    forAll { (n: Num) => assertEquals(n.wireFormat, s":${n.value}$CRLF") }
+    forAll((n: Num) => assertEquals(n.wireFormat, s":${n.value}$CRLF"))
   }
 
   property("A RESP codec handling integers roundtrips with no errors") {
-    forAll { (n: Num) => assertEquals(n.roundTrip, n) }
+    forAll((n: Num) => assertEquals(n.roundTrip, n))
   }
 
   property("A RESP codec handling bulk strings fails with correct error message when decoding size < -1") {
@@ -182,7 +182,7 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling bulk strings roundtrips with no errors") {
-    forAll { (b: GenBulk) => assertEquals(b.roundTrip, b) }
+    forAll((b: GenBulk) => assertEquals(b.roundTrip, b))
   }
 
   property("A RESP codec handling arrays fails with correct error message when decoding size < -1") {
@@ -211,6 +211,6 @@ final class RESPCodecsSpec extends BaseSpec {
   }
 
   property("A RESP codec handling bulk strings roundtrips with no errors") {
-    forAll { (a: GenArr) => assertEquals(a.roundTrip, a) }
+    forAll((a: GenArr) => assertEquals(a.roundTrip, a))
   }
 }
