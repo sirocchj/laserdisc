@@ -40,11 +40,11 @@ final class ReadLawsCheck extends DisciplineSuite with LawsCheckSettings with Im
 }
 
 private[protocol] sealed trait Implicits {
-  implicit val genNum: Gen[Num] = chooseNum(0L, Long.MaxValue) map Num.apply
-  implicit val genStr: Gen[Str] = Gen.alphaNumStr map Str.apply
+  implicit val genNum: Gen[Num] = chooseNum(0L, Long.MaxValue).map(Num.apply)
+  implicit val genStr: Gen[Str] = Gen.alphaNumStr.map(Str.apply)
 
-  implicit val genListOfNum: Gen[List[Num]] = Gen.listOfN(500, genNum) map (_.distinct)
-  implicit val genListOfStr: Gen[List[Str]] = Gen.listOfN(500, genStr) map (_.distinct)
+  implicit val genListOfNum: Gen[List[Num]] = Gen.listOfN(500, genNum).map(_.distinct)
+  implicit val genListOfStr: Gen[List[Str]] = Gen.listOfN(500, genStr).map(_.distinct)
 
   implicit def arbNum(implicit ev: Gen[Num]): Arbitrary[Num] = Arbitrary(ev)
   implicit def arbStr(implicit ev: Gen[Str]): Arbitrary[Str] = Arbitrary(ev)
@@ -52,17 +52,17 @@ private[protocol] sealed trait Implicits {
   implicit val cogenNum: Cogen[Num] = Cogen(_.value)
   implicit val cogenStr: Cogen[Str] = Cogen(_.value.length.toLong)
 
-  implicit def arbReadNum(implicit ev: Arbitrary[Long]): Arbitrary[Read[Num, Long]] = Arbitrary(ev.arbitrary map Read.const)
-  implicit def arbReadStr(implicit ev: Arbitrary[Long]): Arbitrary[Read[Str, Long]] = Arbitrary(ev.arbitrary map Read.const)
+  implicit def arbReadNum(implicit ev: Arbitrary[Long]): Arbitrary[Read[Num, Long]] = Arbitrary(ev.arbitrary.map(Read.const))
+  implicit def arbReadStr(implicit ev: Arbitrary[Long]): Arbitrary[Read[Str, Long]] = Arbitrary(ev.arbitrary.map(Read.const))
 
   implicit def arbReadNumString(implicit ev: Arbitrary[Num]): Arbitrary[Read[Num, String]] =
-    Arbitrary(ev.arbitrary map (n => Read.const(n.value.toString)))
+    Arbitrary(ev.arbitrary.map(n => Read.const(n.value.toString)))
 
   implicit def arbReadNumStringFun(implicit ev: Arbitrary[Num]): Arbitrary[Read[Num, Long => String]] =
-    Arbitrary(ev.arbitrary map (l => Read.const(_ => l.value.toString)))
+    Arbitrary(ev.arbitrary.map(l => Read.const(_ => l.value.toString)))
 
   implicit def arbReadNumNumFun(implicit ev: Arbitrary[String]): Arbitrary[Read[Num, String => Long]] =
-    Arbitrary(ev.arbitrary map (s => Read.const(_ => s.length.toLong)))
+    Arbitrary(ev.arbitrary.map(s => Read.const(_ => s.length.toLong)))
 
   implicit def eqReadTup[A, B, C, D](implicit ga: Gen[List[A]], eb: Eq[B], ec: Eq[C], ed: Eq[D]): Eq[Read[A, (B, C, D)]] =
     (x: Read[A, (B, C, D)], y: Read[A, (B, C, D)]) => {

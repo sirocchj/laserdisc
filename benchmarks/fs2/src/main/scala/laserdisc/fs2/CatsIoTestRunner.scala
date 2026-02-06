@@ -20,7 +20,7 @@ object CatsIoTestRunner {
 
     val runFor = 15.minutes
 
-    val task = IO.monotonic >>= { start =>
+    val task = IO.monotonic.flatMap { start =>
       RedisClient[IO].to("localhost", 6379).use { cl =>
         val cases = TestCasesLaserdisc[IO](cl)
         0.tailRecM[IO, Int] { count =>

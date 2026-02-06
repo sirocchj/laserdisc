@@ -23,7 +23,6 @@ package laserdisc
 package fs2
 
 import cats.effect.*
-import cats.syntax.flatMap.*
 import cats.syntax.traverse.*
 import laserdisc.all.*
 import laserdisc.auto.*
@@ -42,7 +41,7 @@ object LaserdiscFs2ClientSpec {
 
 sealed abstract class LaserdiscFs2ClientSpec(p: Port, dest: String) extends LaserdiscFs2Suite(p) {
   private def preset(cl: RedisClient[IO], payload: String): IO[Unit] =
-    cl.send(set(key, payload)) >>= (_ => async.unit)
+    cl.send(set(key, payload)).flatMap(_ => async.unit)
 
   private def run[A]: IO[A] => A = _.unsafeRunSync()(runtime)
 
@@ -67,7 +66,7 @@ sealed abstract class LaserdiscFs2ClientSpec(p: Port, dest: String) extends Lase
       collection.parallel.immutable.ParSeq
         .range(0, requestsInParallel)
         .map(_ => async.start(cl.send(get[String](key))))
-        .map(ioFib => ioFib >>= (_.joinWith(cancellationError).attempt))
+        .map(ioFib => ioFib.flatMap(_.joinWith(cancellationError).attempt))
         .map(
           _.map(
             _.fold(
@@ -116,7 +115,7 @@ sealed abstract class LaserdiscFs2ClientSpec(p: Port, dest: String) extends Lase
       ParSeq
         .range(0, requestsInParallel)
         .map(_ => async.start(cl.send(get[String](key))))
-        .map(ioFib => ioFib >>= (_.joinWith(cancellationError).attempt))
+        .map(ioFib => ioFib.flatMap(_.joinWith(cancellationError).attempt))
         .map(
           _.map(
             _.fold(
@@ -146,7 +145,7 @@ sealed abstract class LaserdiscFs2ClientSpec(p: Port, dest: String) extends Lase
       ParSeq
         .range(0, requestsInParallel)
         .map(_ => async.start(cl.send(get[String](key))))
-        .map(ioFib => ioFib >>= (_.joinWith(cancellationError).attempt))
+        .map(ioFib => ioFib.flatMap(_.joinWith(cancellationError).attempt))
         .map(
           _.map(
             _.fold(
@@ -171,16 +170,16 @@ sealed abstract class LaserdiscFs2ClientSpec(p: Port, dest: String) extends Lase
     val bulk     = List.fill(payloadSize)(text).mkString(" - ")
 
     def cleanup(cl: RedisClient[IO]): IO[Unit] =
-      cl.send(lists.lrem(key, 0L, bulk)) >>= (_ => async.unit)
+      cl.send(lists.lrem(key, 0L, bulk)).flatMap(_ => async.unit)
 
     def preset(cl: RedisClient[IO]): IO[Unit] =
-      (1 to requestsInSequence).map(_ => cl.send(lists.rpush(key, bulk :: Nil))).toList.sequence >>= (_ => async.unit)
+      (1 to requestsInSequence).map(_ => cl.send(lists.rpush(key, bulk :: Nil))).toList.sequence.flatMap(_ => async.unit)
 
     def requests(cl: RedisClient[IO]): IO[List[String]] =
       ParSeq
         .range(0, requestsInParallel)
         .map(_ => async.start(cl.send(lists.lrange[String](key, 0L, Index(payloadSize)))))
-        .map(ioFib => ioFib >>= (_.joinWith(cancellationError).attempt))
+        .map(ioFib => ioFib.flatMap(_.joinWith(cancellationError).attempt))
         .map(
           _.map(
             _.fold(

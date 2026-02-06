@@ -6,7 +6,6 @@ package channels
 import _root_.fs2.*
 import _root_.fs2.io.net.Network
 import cats.effect.Concurrent
-import cats.syntax.flatMap.*
 import com.comcast.ip4s.{Host, SocketAddress}
 import laserdisc.fs2.RedisChannel.connectedSocket
 import laserdisc.fs2.parallel.adapters.BitVectorChannelAdapter
@@ -19,7 +18,7 @@ object BitVectorInByteOutChannel {
       receiveBufferSizeBytes: Int
   ): Pipe[F, BitVector, Byte] =
     stream =>
-      Stream.resource(connectedSocket(address, receiveBufferSizeBytes)) >>= { socket =>
+      Stream.resource(connectedSocket(address, receiveBufferSizeBytes)).flatMap { socket =>
         val send    = stream.through(BitVectorChannelAdapter.send(socket.write))
         val receive = socket.reads
 

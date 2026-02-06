@@ -167,10 +167,10 @@ private[laserdisc] trait RESPFrameFixture extends HighPriorityGenerators {
 private[laserdisc] trait HighPriorityGenerators extends LowPriorityGenerators {
 
   private[this] def oneOrMoreProtocol(gen: Gen[ProtocolEncoded]): Gen[OneOrMore[ProtocolEncoded]] =
-    Gen.chooseNum(1, Math.min(scalaCheckTestParameters.maxSize, 300)) flatMap (Gen.listOfN(_, gen)) map OneOrMore.unsafeFrom
+    Gen.chooseNum(1, Math.min(scalaCheckTestParameters.maxSize, 300)).flatMap(Gen.listOfN(_, gen)).map(OneOrMore.unsafeFrom)
 
   private[this] def listProtocol(gen: Gen[ProtocolEncoded]): Gen[List[ProtocolEncoded]] =
-    Gen.chooseNum(1, 20) flatMap (Gen.listOfN(_, gen))
+    Gen.chooseNum(1, 20).flatMap(Gen.listOfN(_, gen))
 
   private[this] final def noArrEncoded(
       implicit bulk: Gen[BulkEncoded],
@@ -194,7 +194,7 @@ private[laserdisc] trait HighPriorityGenerators extends LowPriorityGenerators {
     )
 
   private[this] final val noArrArrEncoded: Gen[ArrEncoded] =
-    listProtocol(noArrEncoded) map ArrEncoded.apply
+    listProtocol(noArrEncoded).map(ArrEncoded.apply)
 
   private[this] final def oneLevelArrEncoded(arrGen: Gen[ArrEncoded]): Gen[ArrEncoded] =
     listProtocol(
@@ -202,7 +202,7 @@ private[laserdisc] trait HighPriorityGenerators extends LowPriorityGenerators {
         20 -> noArrEncoded,
         3  -> arrGen
       )
-    ) map ArrEncoded.apply
+    ).map(ArrEncoded.apply)
 
   private[this] final def xLevelsNestedArrEncoded(x: Int): Gen[ArrEncoded] = {
     @scala.annotation.tailrec
@@ -226,24 +226,24 @@ private[laserdisc] trait HighPriorityGenerators extends LowPriorityGenerators {
 }
 
 private[laserdisc] trait LowPriorityGenerators extends BaseSpec {
-  protected implicit final def string: Gen[String] = Gen.listOf(utf8BMPCharGen) map (_.mkString)
+  protected implicit final def string: Gen[String] = Gen.listOf(utf8BMPCharGen).map(_.mkString)
 
   protected implicit final def nonEmptyString(implicit strGen: Gen[String]): Gen[NonEmptyString] =
-    strGen.filter(_.nonEmpty) map NonEmptyString.unsafeFrom
+    strGen.filter(_.nonEmpty).map(NonEmptyString.unsafeFrom)
 
   protected implicit final def bulkEncoded(implicit nesGen: Gen[NonEmptyString]): Gen[BulkEncoded] =
-    nesGen map BulkEncoded.apply
+    nesGen.map(BulkEncoded.apply)
 
   protected implicit final val long: Gen[Long] = chooseNum(MinValue, MaxValue)
 
   protected implicit final def numEncoded(implicit lnGen: Gen[Long]): Gen[NumEncoded] =
-    lnGen map NumEncoded.apply
+    lnGen.map(NumEncoded.apply)
 
   protected implicit final def strEncoded(implicit sGen: Gen[String]): Gen[StrEncoded] =
-    sGen.map(s => s.replace(CRLF, "")).filter(_.nonEmpty) map StrEncoded.apply
+    sGen.map(s => s.replace(CRLF, "")).filter(_.nonEmpty).map(StrEncoded.apply)
 
   protected implicit final def errEncoded(implicit nesGen: Gen[NonEmptyString]): Gen[ErrEncoded] =
-    nesGen map ErrEncoded.apply
+    nesGen.map(ErrEncoded.apply)
 
   protected implicit final val emptyBulkEncoded: Gen[EmptyBulkEncoded] =
     Gen.const(EmptyBulkEncoded())

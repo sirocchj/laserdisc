@@ -36,7 +36,7 @@ object PromiseMapper extends Poly1 {
       in: (Protocol.Aux[A], Env[F])
   ): F[Maybe[A]] = {
     val (protocol, (queue, duration)) = in
-    Deferred[F, Maybe[A]] >>= { promise =>
+    Deferred[F, Maybe[A]].flatMap { promise =>
       val complete: Maybe[A] => F[Unit] =
         mba => promise.complete(mba).as(())
 

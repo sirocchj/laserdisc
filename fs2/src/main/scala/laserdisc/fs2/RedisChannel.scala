@@ -26,7 +26,6 @@ import _root_.fs2.{Chunk, Pull}
 import _root_.fs2.io.net.Socket
 import cats.MonadThrow
 import cats.effect.{Concurrent, Resource}
-import cats.syntax.flatMap.*
 import com.comcast.ip4s.{Host, SocketAddress}
 import laserdisc.protocol.*
 import log.effect.fs2.LogSelector
@@ -43,7 +42,7 @@ object RedisChannel {
       receiveBufferSizeBytes: Int
   ): Pipe[F, RESP, RESP] =
     stream =>
-      Stream.resource(connectedSocket(address, receiveBufferSizeBytes)) >>= { socket =>
+      Stream.resource(connectedSocket(address, receiveBufferSizeBytes)).flatMap { socket =>
         val send    = stream.through(impl.send(socket.write))
         val receive = socket.reads.through(impl.receiveResp)
 
@@ -92,7 +91,7 @@ object RedisChannel {
 
       pipeIn =>
         streamDecoder
-          .decode(pipeIn.through(framing) map (_.bits))
+          .decode(pipeIn.through(framing).map(_.bits))
           .evalTap(resp => logSelector.log.trace(s"receiving $resp"))
     }
   }

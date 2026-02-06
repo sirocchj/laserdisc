@@ -109,7 +109,7 @@ object ServerP {
             case (CR(Right(client)), Right((cs, csl))) => Right((client :: cs) -> (csl + 1))
             case (CR(Left(e)), Right((_, csl))) => Left(RESPDecErr(s"Read[Arr, Role] clients error at element ${csl + 1}: ${e.message}"))
             case (_, left)                      => left
-          } map (r => Master(offset, r._1))
+          }.map(r => Master(offset, r._1))
         case Arr(Bulk("slave") +: Bulk(Host(host)) +: Num(ToInt(Port(port))) +: RSR(Right(status)) +: Num(NonNegLong(offset)) +: Seq()) =>
           Right(Slave(host, port, status, offset))
         case Arr(Bulk("slave") +: Bulk(Host(_)) +: Num(ToInt(Port(_))) +: RSR(Left(e)) +: Num(NonNegLong(_)) +: Seq()) =>

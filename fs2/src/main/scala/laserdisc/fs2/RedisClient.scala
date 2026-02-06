@@ -82,7 +82,7 @@ object RedisClient {
     }
 
     def mkClient[F[_]: Concurrent](establishedConn: Connection[F]): Resource[F, RedisClient[F]] =
-      Resource.make(mkPublisher(establishedConn) >>= (publ => publ.start.map(_ => publ)))(_.shutdown) map { publisher =>
+      Resource.make(mkPublisher(establishedConn).flatMap(publ => publ.start.map(_ => publ)))(_.shutdown).map { publisher =>
         new RedisClient[F] {
           override final def send[In <: Tuple, Out <: Tuple](in: In, timeout: FiniteDuration)(
               implicit handler: RedisHandler.Aux[F, In, Out]
@@ -118,7 +118,7 @@ object RedisClient {
                 .evalMap(push)
                 .through(redisNetChannel(address))
                 .evalMap { resp =>
-                  pop >>= {
+                  pop.flatMap {
                     case Some(Request(protocol, cb)) => cb(protocol.decode(resp))
                     case None                        => Concurrent[F].raiseError[Unit](NoInFlightRequest(resp))
                     case Some(_)                     => absurd
@@ -197,9 +197,11 @@ object RedisClient {
                 handler(queue -> timeout, in)
             }
 
-            Resource.make(newConnection.run.map(newConnection -> _)) { case (conn, fib) =>
-              conn.shutdown >> fib.joinWith(Temporal[F].unit)
-            } map { case (conn, _) => conn }
+            Resource
+              .make(newConnection.run.map(newConnection -> _)) { case (conn, fib) =>
+                conn.shutdown >> fib.joinWith(Temporal[F].unit)
+              }
+              .map { case (conn, _) => conn }
           }
         }
       }
@@ -236,7 +238,7 @@ object RedisClient {
               implicit ev: RedisHandler.Aux[F, In, Out]
           ): F[Out] = {
             import State.*
-            state.get >>= {
+            state.get.flatMap {
               case ConnectedState(conn) => conn.send(in, timeout)
               case ShutDownState        => Concurrent[F].raiseError(ClientTerminated)
               case InitialState         => Concurrent[F].raiseError(ClientNotStartedProperly)
