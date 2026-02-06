@@ -115,7 +115,7 @@ def laserdiscCrossModule(path: String) = {
 }
 
 lazy val laserdisc = tlCrossRootProject
-  .aggregate(core, laws, fs2, cli, circe)
+  .aggregate(core, laws, fs2, cli, circe, `core-bench`, `fs2-bench`)
   .settings(commonSettings)
 
 lazy val core = laserdiscCrossModule("core")
