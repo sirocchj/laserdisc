@@ -4,11 +4,11 @@ package parallel
 package adapters
 
 import _root_.fs2.{Chunk, Pipe, Pull, Stream}
+import _root_.fs2.interop.scodec.{StreamDecoder, StreamEncoder}
 import cats.ApplicativeThrow
 import laserdisc.protocol.*
 import scodec.Codec
 import scodec.bits.BitVector
-import scodec.stream.{StreamDecoder, StreamEncoder}
 
 private[parallel] object RespChannelAdapter {
   def send[F[_]: ApplicativeThrow](socketWrite: Chunk[Byte] => F[Unit]): Pipe[F, RESP, Unit] = {

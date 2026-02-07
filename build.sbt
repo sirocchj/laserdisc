@@ -27,7 +27,6 @@ val V = new {
   val `scodec-bits`          = "1.2.4"
   val `scodec-core_scala2`   = "1.11.11"
   val `scodec-core_scala3`   = "2.3.3"
-  val `scodec-stream`        = "3.0.2"
   val scredis                = "2.4.3"
   val shapeless              = "2.3.13"
   val `shapeless3-deriving`  = "3.5.0"
@@ -181,8 +180,8 @@ lazy val fs2 = laserdiscCrossModule("fs2")
     libraryDependencies ++= Seq(
       "co.fs2"         %%% "fs2-core"          % V.fs2,
       "co.fs2"         %%% "fs2-io"            % V.fs2,
+      "co.fs2"         %%% "fs2-scodec"        % V.fs2,
       "io.laserdisc"   %%% "log-effect-fs2"    % V.`log-effect`,
-      "org.scodec"     %%% "scodec-stream"     % V.`scodec-stream`,
       "org.typelevel"  %%% "cats-core"         % V.cats,
       "org.typelevel"  %%% "cats-effect"       % V.`cats-effect`,
       "org.typelevel"  %%% "kittens"           % V.kittens,

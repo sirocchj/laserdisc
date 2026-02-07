@@ -23,6 +23,7 @@ package laserdisc
 package fs2
 
 import _root_.fs2.{Chunk, Pull}
+import _root_.fs2.interop.scodec.{StreamDecoder, StreamEncoder}
 import _root_.fs2.io.net.Socket
 import cats.MonadThrow
 import cats.effect.{Concurrent, Resource}
@@ -31,7 +32,6 @@ import laserdisc.protocol.*
 import log.effect.fs2.LogSelector
 import scodec.Codec
 import scodec.bits.BitVector
-import scodec.stream.{StreamDecoder, StreamEncoder}
 
 object RedisChannel {
   private[this] final val streamDecoder = StreamDecoder.many(Codec[RESP])
