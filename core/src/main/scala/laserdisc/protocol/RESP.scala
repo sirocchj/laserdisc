@@ -76,7 +76,7 @@ object Str {
   * @param message
   *   The wrapped exception's message
   */
-final case class Err(message: String) extends laserdisc.Platform.LaserDiscRuntimeError(message) with RESP
+final case class Err(message: String) extends RuntimeException(message, null, true, false) with RESP
 
 /** RESP [[https://redis.io/topics/protocol#resp-integers Integers]]
   *
@@ -288,7 +288,7 @@ sealed trait RESPCodecs extends BitVectorSyntax {
   }
 }
 
-final case class RESPDecErr(message: String) extends laserdisc.Platform.LaserDiscRespProtocolDecodingError(message)
+final case class RESPDecErr(message: String) extends RuntimeException(message, null, true, false)
 
 sealed trait RESPCoproduct {
   final val gen = Generic[RESP]

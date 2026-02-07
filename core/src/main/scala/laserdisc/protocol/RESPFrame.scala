@@ -61,4 +61,4 @@ private[laserdisc] final case class IncompleteFrame(partial: BitVector, bitsToCo
     else nextFrame(partial ++ bits)
 }
 
-private[laserdisc] final case class UnknownBufferState(message: String) extends laserdisc.Platform.LaserDiscRespFrameError(message)
+private[laserdisc] final case class UnknownBufferState(message: String) extends RuntimeException(message, null, true, false)
