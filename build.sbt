@@ -226,11 +226,13 @@ lazy val `core-bench` = project
   .in(file("benchmarks/core"))
   .dependsOn(core.jvm % "compile->test;compile->compile")
   .enablePlugins(JmhPlugin, NoPublishPlugin)
+  .settings(commonSettings)
 
 lazy val `fs2-bench` = project
   .in(file("benchmarks/fs2"))
   .dependsOn(fs2.jvm)
   .enablePlugins(JmhPlugin, NoPublishPlugin)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       "ch.qos.logback"       % "logback-classic" % V.logback,
