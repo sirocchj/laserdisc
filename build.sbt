@@ -118,7 +118,6 @@ lazy val laserdisc = tlCrossRootProject
   .settings(commonSettings)
 
 lazy val core = laserdiscCrossModule("core")
-  .enablePlugins(BoilerplatePlugin)
   .settings(
     libraryDependencies ++= Seq(
       "eu.timepit"     %%% "refined"            % V.refined,
@@ -135,9 +134,7 @@ lazy val core = laserdiscCrossModule("core")
         case _ =>
           Seq("org.scodec" %%% "scodec-core" % V.`scodec-core_scala2`, "com.chuusai" %%% "shapeless" % V.shapeless)
       }
-    },
-    Compile / boilerplateSource := crossProjectBaseDirectory.value / "src" / "main" / "boilerplate",
-    Test / boilerplateSource    := crossProjectBaseDirectory.value / "src" / "test" / "boilerplate"
+    }
   )
   .jvmSettings(
     javaOptions += "-Djava.net.preferIPv4Stack=true",
